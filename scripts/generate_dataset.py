@@ -1,8 +1,8 @@
 """Generate the fictitious catalogue behind the Altera AI demo.
 
 Everything here is invented: the retailer (Harbour Market), the brands, the codes, the
-volumes. Product labels imitate the STYLE of real retailer extractions — upper-case
-till labels, abbreviations, pack formats such as 6X1.5L — without copying any real
+volumes. Product labels imitate the STYLE of real retailer extractions (upper-case
+till labels, abbreviations, pack formats such as 6X1.5L) without copying any real
 product, figure or retailer.
 
 The classification answers are not random. Each product is built from an archetype
@@ -807,7 +807,7 @@ def run(products):
     Every outcome is stored on the product so that the demo can replay the steps and
     the product drawer can show how each answer was reached.
     """
-    # Step 1 — data quality traps, seeded deliberately
+    # Step 1: data quality traps, seeded deliberately
     idx = list(range(len(products)))
     R.shuffle(idx)
     pick = iter(idx)
@@ -844,7 +844,7 @@ def run(products):
         t["label"], t["name"], t["note"] = lab, nm, "test_item"
         t["issues"].append("test_item")
 
-    # Step 2 — net weights: read, then qualified
+    # Step 2: net weights: read, then qualified
     for p in products:
         lab_has_size = any(ch.isdigit() for ch in p["label"].split()[-1]) or any(
             u in p["label"] for u in ("G ", "KG", "ML", "L ", "CL"))
@@ -875,7 +875,7 @@ def run(products):
         if not p["pt_scope"]:
             p["wwf_in"] = False
 
-    # Step 3 — classification route
+    # Step 3: classification route
     for p in products:
         if not p["in_scope"]:
             p["route"] = ""
@@ -894,7 +894,7 @@ def run(products):
         p["conf"] = round(R.uniform(.62, .79), 2)
         p["review"] = True
 
-    # Step 4 — protein content cascade
+    # Step 4: protein content cascade
     for p in products:
         if not p["pt_in"]:
             p["prot_src"] = ""
@@ -915,7 +915,7 @@ def run(products):
         p["issues"].append("per_pack_protein")
         p["prot_src"] = "off_ean" if p["code_kind"] == "ean" else "name_match"
 
-    # Step 5 — the plant / animal split
+    # Step 5: the plant / animal split
     for p in products:
         if not p["pt_in"]:
             p.update(plant=None, animal=None, level="", split_src="")
@@ -942,7 +942,7 @@ def run(products):
             src = "one_side" if p["ingredients"] else "class"
             p.update(plant=t, animal=0.0, level="A" if src == "one_side" else "B", split_src=src)
 
-    # Step 6 — volumes, sales rank
+    # Step 6: volumes, sales rank
     sold = sorted([p for p in products if p["units"] > 0], key=lambda p: -p["units"] * p["weight"])
     for i, p in enumerate(sold, 1):
         p["rank"] = i
@@ -1018,4 +1018,4 @@ if __name__ == "__main__":
     print("  issues      :", dict(Counter(i for p in prods for i in p['issues'])))
     T = sum(p["units"] * p["weight"] * p["prot"] / 100 for p in prods if p["pt_in"])
     V = sum(p["units"] * p["weight"] * p["plant"] / 100 for p in prods if p["pt_in"])
-    print(f"  plant share : {V / T:.1%}  (fictitious — not a measurement)")
+    print(f"  plant share : {V / T:.1%}  (fictitious, not a measurement)")

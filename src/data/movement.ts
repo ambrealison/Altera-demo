@@ -21,7 +21,7 @@ export interface Country { id: number; name: L; note?: L; retailers: Retailer[] 
 export type SourceId = "pt2025" | "qmEu" | "qmBe" | "rewe" | "lidlAt" | "lidlFr" | "lidlGb" | "ad";
 export const SOURCES: Record<SourceId, { label: string; url: string }> = {
   pt2025: {
-    label: "Green Protein Alliance & ProVeg Nederland, The Protein Tracker — National Supermarket Protein Split 2025, March 2026",
+    label: "Green Protein Alliance & ProVeg Nederland, The Protein Tracker: National Supermarket Protein Split 2025, March 2026",
     url: "https://eiweet.nl/wp-content/uploads/2026/03/2026_March_The-Protein-Tracker-Dutch-national-retail-protein-split-2025-Green-Protein-Alliance-ProVeg-Netherlands-1.pdf",
   },
   qmEu: {
@@ -33,7 +33,7 @@ export const SOURCES: Record<SourceId, { label: string; url: string }> = {
     url: "https://www.thequestionmark.org/download/superlist-report-be-environment-2026-v1.0.en.pdf",
   },
   rewe: {
-    label: "REWE Group, Proteinstrategie — Positionspapier, July 2025",
+    label: "REWE Group, Proteinstrategie, Positionspapier, July 2025",
     url: "https://www.rewe-group.com/content/uploads/2025/08/proteinstrategie-positionspapier.pdf",
   },
   lidlAt: {
@@ -41,7 +41,7 @@ export const SOURCES: Record<SourceId, { label: string; url: string }> = {
     url: "https://web.archive.org/web/20240216215232/https://corporate.lidl.at/content/download/83769/file/PA_Protein%20Shift%20bei%20Lidl%20%C3%96sterreich.pdf",
   },
   lidlFr: {
-    label: "Lidl, Conscious nutrition strategy — protein sources measured with the WWF methodology across its countries (info.lidl)",
+    label: "Lidl, Conscious nutrition strategy: protein sources measured with the WWF methodology across its countries (info.lidl)",
     url: "https://info.lidl/en/our-responsibility/promoting-health/conscious-nutrition-strategy",
   },
   lidlGb: {

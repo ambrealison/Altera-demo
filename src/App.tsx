@@ -44,8 +44,8 @@ export default function App() {
     window.history.replaceState(null, "", u.toString());
     document.documentElement.lang = lang;
     document.title = screen.kind === "tour"
-      ? `Altera AI — ${STEPS[lang][STOPS[screen.i].chapter - 1]}`
-      : `Altera AI — ${S.demo}`;
+      ? `Altera AI · ${STEPS[lang][STOPS[screen.i].chapter - 1]}`
+      : `Altera AI · ${S.demo}`;
   }, [lang, screen, S.demo]);
 
   useEffect(() => {

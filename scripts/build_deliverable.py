@@ -59,14 +59,14 @@ HEAD_BORDER = Border(bottom=Side(style="medium", color=NAVY))
 INPUT_BORDER = Border(bottom=Side(style="thin", color="BF8F00"))
 WRAP_TOP = Alignment(wrap_text=True, vertical="top")
 T, PCT, INT, KG = "#,##0.0", "0.0%", "#,##0", "#,##0.0"
-BANNER = "FICTITIOUS DATA — demo file. Harbour Market, its brands, its products and every figure are invented."
+BANNER = "FICTITIOUS DATA: demo file. Harbour Market, its brands, its products and every figure are invented."
 
 PT_ORDER = ["animal_core", "composite", "plant_non_core", "plant_core"]
 PT_LABEL = {"animal_core": "Animal core", "composite": "Animal & plant composite",
             "plant_non_core": "Plant-based non-core", "plant_core": "Plant-based core"}
-PT_SPLIT_LABEL = {"plant_core": "Plant-based core — plant, a protein source",
-                  "plant_non_core": "Plant-based non-core — plant, not a protein source",
-                  "composite": "Composite — plant and animal mixed", "animal_core": "Animal core — animal"}
+PT_SPLIT_LABEL = {"plant_core": "Plant-based core (plant, a protein source)",
+                  "plant_non_core": "Plant-based non-core (plant, not a protein source)",
+                  "composite": "Composite (plant and animal mixed)", "animal_core": "Animal core (animal)"}
 # the level of detail the GPA methodology describes, class by class
 DETAIL = {
     "animal_core": ["Red meat", "Poultry", "Fish and seafood", "Eggs", "Other animals (e.g. snails)", "Cheese",
@@ -329,7 +329,7 @@ def welcome(bk: Book, order: list[dict], n_fam: int, n_dept: int, n_brand: int):
 
     para = [
         (5, "What this workbook contains",
-         "The share of the protein you put on the market that is of plant origin, and how it breaks down — "
+         "The share of the protein you put on the market that is of plant origin, and how it breaks down, "
          "by the WWF Planet-Based Diets methodology first, then by Protein Tracker."),
         (7, "How to use it",
          "Type your volumes in the yellow columns below: units sold, or kilos sold for products sold by weight. "
@@ -375,7 +375,7 @@ def welcome(bk: Book, order: list[dict], n_fam: int, n_dept: int, n_brand: int):
     for r in range(20, 27):
         ws.row_dimensions[r].height = 17
 
-    bar(ws, 28, "OUR ESTIMATED VOLUMES — type yours over them", fill=ORANGE, last="H",
+    bar(ws, 28, "OUR ESTIMATED VOLUMES · type yours over them", fill=ORANGE, last="H",
         font=Font(name="Arial", size=12, bold=True, color="FFFFFF"))
     text(ws, "A29", "Sorted by our estimated rank, deduced from the volumes we estimated. Your own ranks, on the right, "
          "are recalculated from the yellow columns: where they differ from ours, our estimate departs.",
@@ -415,7 +415,7 @@ def welcome(bk: Book, order: list[dict], n_fam: int, n_dept: int, n_brand: int):
 def data(bk: Book, order: list[dict]):
     ws = bk.wb.create_sheet("Data")
     ws.sheet_view.showGridLines = False
-    bar(ws, 1, "DATA — one row per product", fill=NAVY, last=get_column_letter(len(DATA_COLS)))
+    bar(ws, 1, "DATA · one row per product", fill=NAVY, last=get_column_letter(len(DATA_COLS)))
     text(ws, "A2", BANNER + " Volumes come from the yellow columns of the Welcome tab; every other tab reads this one.",
          SMALL)
     header(ws, 4, [h for _, h, _, _ in DATA_COLS])
@@ -461,10 +461,10 @@ def wwf(bk: Book, n_cheese: int):
     ws = bk.wb.create_sheet("WWF")
     ws.sheet_view.showGridLines = False
     widths(ws, {"A": 46, "B": 15, "C": 12, "D": 10, "E": 13, "F": 15, "G": 12, "H": 3, "I": 14, "J": 12})
-    bar(ws, 1, "WWF — PLANET-BASED DIETS · APPENDIX D FORMAT REPORT", fill=NAVY, last="J")
+    bar(ws, 1, "WWF PLANET-BASED DIETS · APPENDIX D FORMAT REPORT", fill=NAVY, last="J")
     for row, k, v in ((3, "METHODOLOGY", "WWF Planet-Based Diets"),
                       (4, "INPUT DATA", f"Harbour Market catalogue (fictitious), {bk.n} products, volumes entered on the Welcome tab"),
-                      (5, "STEP", "Step 1 — product level")):
+                      (5, "STEP", "Step 1: product level")):
         text(ws, f"A{row}", k, LABEL)
         text(ws, f"B{row}", v, ARIAL, merge=f"J{row}")
 
@@ -480,7 +480,7 @@ def wwf(bk: Book, n_cheese: int):
     for a, b, lab in (("B", "D", "Dairy equivalents"), ("F", "G", "Product mass"), ("I", "J", "Protein")):
         for col in range(ws[f"{a}18"].column, ws[f"{b}18"].column + 1):
             ws.cell(row=18, column=col).fill = BAND_FILL
-        text(ws, f"{a}18", f"{lab} — Harbour Market", Font(name="Arial", size=9, bold=True, color=NAVY),
+        text(ws, f"{a}18", f"{lab} · Harbour Market", Font(name="Arial", size=9, bold=True, color=NAVY),
              merge=f"{b}18", align=Alignment(horizontal="center"))
     header(ws, 19, [None, "Mass (t)", "Share", "PHD", None, "Mass (t)", "Share", None, "Protein (t)", "Share"])
     for col in "EH":
@@ -528,7 +528,7 @@ def wwf(bk: Book, n_cheese: int):
             bk.put(ws, f"{col}{row}", f, v, T)
             share = chr(ord(col) + 1)
             bk.put(ws, f"{share}{row}", f"IFERROR({col}{row}/{col}$51,0)", v / tot[col][1] if tot[col][1] else 0, PCT)
-        ws[f"D{row}"] = PHD.get(row, "—")
+        ws[f"D{row}"] = PHD.get(row, "no target")
         ws[f"D{row}"].number_format, ws[f"D{row}"].font = "0%", Font(name="Arial", size=10, color=GREY)
         ws[f"D{row}"].alignment = Alignment(horizontal="center")
     # what the classification could not settle: none here, but the rows stay so a real file can show them
@@ -550,9 +550,9 @@ def wwf(bk: Book, n_cheese: int):
         bk.put(ws, f"{col}51", f_all, v_all, T, BOLD)
         bk.put(ws, f"{share}51", f"IFERROR({col}51/{col}$51,0)", 1.0 if v_all else 0, PCT, BOLD)
     for r in (49, 50):
-        ws[f"D{r}"] = "—"
+        ws[f"D{r}"] = "no target"
         ws[f"D{r}"].font, ws[f"D{r}"].alignment = Font(name="Arial", size=10, color=GREY), Alignment(horizontal="center")
-    text(ws, "A51", "Total — whole products", BOLD)
+    text(ws, "A51", "Total, whole products", BOLD)
 
     # proportions by source, in dairy equivalents
     B = {r: got[("B", r)] for r in (21, 27, 34, 35, 37, 38, 40, 42, 43, 45, 47, 48)}
@@ -606,7 +606,7 @@ def wwf(bk: Book, n_cheese: int):
 
     notes = [
         (74, "PHD column: the Planetary Health Diet proportions as printed in the “PHD” column of Appendix D. "
-             "A dash marks a row for which Appendix D gives no target."),
+             "“No target” marks a row for which Appendix D gives none."),
         (75, f"Appendix B dairy equivalents are applied: {n_cheese} cheeses at a factor of 1:10, everything else at 1:1. "
              "The product-mass column gives the mass actually sold, without the conversion; the gap between the two "
              "columns is the conversion itself."),
@@ -665,7 +665,7 @@ def protein_tracker(bk: Book):
     ws = bk.wb.create_sheet("Protein Tracker")
     ws.sheet_view.showGridLines = False
     widths(ws, {"A": 42, "B": 15, "C": 15, "D": 15, "E": 15, "F": 15, "G": 15})
-    bar(ws, 1, "PROTEIN TRACKER — Green Protein Alliance", fill=NAVY)
+    bar(ws, 1, "PROTEIN TRACKER · Green Protein Alliance", fill=NAVY)
     text(ws, "A3", "Plant share of protein", NAVY_B, merge="B3")
     text(ws, "A4", "on the Protein Tracker scope", SMALL, merge="B4")
     fpl, vpl = bk.sumifs("plant_kg", 1000)
@@ -732,11 +732,11 @@ def protein_tracker(bk: Book):
     bk.put(ws, f"G{tr}", f"IFERROR(E{tr}/C{tr},0)", va / vp, PCT, BOLD)
     text(ws, f"A{tr + 2}", "Out of scope", NAVY_B)
     header(ws, tr + 3, [None, *cols])
-    text(ws, f"A{tr + 4}", "Out of scope — non-food and test items")
+    text(ws, f"A{tr + 4}", "Out of scope: non-food and test items")
     out_kg = sum(r["kg"] for r in bk.rows if r["in_scope"] == "no")
     bk.put(ws, f"B{tr + 4}", f'SUMIFS({bk.rng("kg")},{bk.rng("in_scope")},"no")/1000', out_kg / 1000, T)
     for col in "CDEFG":
-        ws[f"{col}{tr + 4}"] = "—"
+        ws[f"{col}{tr + 4}"] = "n/a"
         ws[f"{col}{tr + 4}"].font, ws[f"{col}{tr + 4}"].alignment = Font(name="Arial", size=10, color=GREY), Alignment(horizontal="center")
 
     ch = chart("Protein by class", "percentStacked", "r")
@@ -868,7 +868,7 @@ def top_flop(bk: Book, order: list[dict]):
     ws = bk.wb.create_sheet("Top and flop")
     ws.sheet_view.showGridLines = False
     widths(ws, {"A": 15, "B": 44, "C": 16, "D": 22, "E": 10, "F": 12, "G": 12, "H": 12, "I": 13, "J": 13, "K": 13})
-    bar(ws, 1, "TOP AND FLOP — Protein Tracker ranking", fill=NAVY, last="K")
+    bar(ws, 1, "TOP AND FLOP · Protein Tracker ranking", fill=NAVY, last="K")
     text(ws, "A3", "Ranking basis: PROTEIN TRACKER. A product's plant share is its plant protein over its total protein; "
          "the WWF ranking, which reasons in weight, does not apply to a single product.", NOTE, merge="K3", align=WRAP_TOP)
     text(ws, "A4", "Weight, volume and protein per 100 g are read from the Data tab: these rows recalculate with your volumes.",
@@ -886,7 +886,7 @@ def top_flop(bk: Book, order: list[dict]):
         header(ws, sec + 2, heads)
         for k, r in enumerate(items):
             row, d = sec + 3 + k, D0 + idx[id(r)]
-            for col, v in zip("ABCDE", (r["code"], r["name"], r["brand"], r["family"], r["fg"] or "—")):
+            for col, v in zip("ABCDE", (r["code"], r["name"], r["brand"], r["family"], r["fg"] or "n/a")):
                 text(ws, f"{col}{row}", v)
             ws[f"A{row}"].number_format = "@"
             ref = lambda key: f"Data!{DC[key]}{d}"  # noqa: E731

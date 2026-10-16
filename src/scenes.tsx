@@ -141,7 +141,7 @@ function Classify(p: P) {
               <div className="frow2" key={k}><b className="fgk">{k}</b><span>{U.fg[k as keyof typeof U.fg]}</span><Bar v={FG_COUNT[k] / maxG} grow={g} color="var(--ink)" h={5} /></div>
             ))}
             <div className="frow2"><b className="fgk" style={{ color: "var(--comp)" }}>C</b><span>{U.composite}</span><Bar v={WWF_COMPOSITES / maxG} grow={g} color="var(--comp)" h={5} /></div>
-            <div className="frow2 muted"><b className="fgk">—</b><span>{U.excluded}</span><Bar v={WWF_EXCLUDED / maxG} grow={g} color="var(--faint)" h={5} /></div>
+            <div className="frow2 muted"><b className="fgk">×</b><span>{U.excluded}</span><Bar v={WWF_EXCLUDED / maxG} grow={g} color="var(--faint)" h={5} /></div>
           </div>
         </Card>
         <Card title="Protein Tracker" aside={<span className="chip">{U.fourClasses}</span>}>
