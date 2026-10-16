@@ -1,5 +1,5 @@
 import type { Lang } from "./lib/types";
-import { STRINGS, UI_STR } from "./lib/i18n";
+import { STRINGS } from "./lib/i18n";
 import { BOOKING_URL, DOWNLOADS } from "./config";
 import { fmtNum } from "./lib/calc";
 import { F } from "./lib/facts";
@@ -25,8 +25,8 @@ export function Cover({ lang, onNext }: P) {
 
 /** A glimpse of the app window, as on the alterafood.org hero. */
 function Peek({ lang }: { lang: Lang }) {
-  const U = UI_STR[lang];
   const c = 2 * Math.PI * 34;
+  const label = lang === "fr" ? "Part végétale des protéines" : "Plant share of protein";
   return (
     <div className="peek rise d4" aria-hidden>
       <div className="peek-frame">
@@ -35,8 +35,8 @@ function Peek({ lang }: { lang: Lang }) {
           <div className="peek-body">
             <div className="banner">
               <div>
-                <div className="tagrow"><b>{U.ptTag}</b></div>
-                <div className="h">{U.ratioHead}</div>
+                <div className="tagrow"><b>Protein Tracker</b></div>
+                <div className="h">{label}</div>
                 <div className="big">{fmtNum(F.ptRatio * 100, lang, 1)}<small>%</small></div>
               </div>
               <svg width="84" height="84" viewBox="0 0 80 80">
@@ -51,8 +51,9 @@ function Peek({ lang }: { lang: Lang }) {
   );
 }
 
-export function Intro({ lang, onNext }: P) {
-  const T = STRINGS[lang].intro;
+export function Ratio({ lang, onNext }: P) {
+  const T = STRINGS[lang].ratio;
+  const S = STRINGS[lang];
   const total = T.items.reduce((a, i) => a + i.k, 0);
   const plant = T.items.reduce((a, i) => a + i.p, 0);
   const share = plant / total;
@@ -64,14 +65,14 @@ export function Intro({ lang, onNext }: P) {
           <p className="eyebrow rise">{T.eyebrow}</p>
           <h1 className="display lg rise d1">{T.title}</h1>
           <p className="lead rise d2">{T.lead}</p>
-          <div className="why-row rise d3">{T.why.map((w) => <span key={w}>{w}</span>)}</div>
-          <div className="actions rise d4"><button className="pill pill-dark" onClick={onNext} autoFocus>{T.go} <Arrow /></button></div>
+          <ul className="why-list rise d3">{T.why.map((w) => <li key={w}>{w}</li>)}</ul>
+          <div className="actions rise d4"><button className="pill pill-dark" onClick={onNext} autoFocus>{S.next} <Arrow /></button></div>
         </div>
         <div className="basket rise d2">
+          <div className="frac"><span className="t">{T.top}</span><span className="b">{T.bottom}</span></div>
           <div className="basket-items">
             {T.items.map((it, i) => (
-              <div className="bitem rise" key={it.n} style={{ animationDelay: `${0.3 + i * 0.09}s` }}>
-                <span className="bem">{it.e}</span>
+              <div className="bitem rise" key={it.n} style={{ animationDelay: `${0.35 + i * 0.08}s` }}>
                 <span className="bn">{it.n}</span>
                 <span className="bbar">
                   <i style={{ width: `${(100 * it.p) / max}%`, background: "var(--plant)" }} />
@@ -81,23 +82,43 @@ export function Intro({ lang, onNext }: P) {
               </div>
             ))}
           </div>
-          <div className="bsum rise" style={{ animationDelay: "0.95s" }}>
-            <div className="bar-split" style={{ height: 18, margin: 0 }}>
+          <div className="bsum rise" style={{ animationDelay: "0.9s" }}>
+            <div className="bar-split" style={{ height: 14, margin: 0 }}>
               <i style={{ width: `${share * 100}%`, background: "var(--plant)" }} />
               <i style={{ width: `${(1 - share) * 100}%`, background: "var(--animal)" }} />
             </div>
-            <div className="result-line" style={{ marginTop: 14 }}>
-              <b>{Math.round(share * 100)}{lang === "fr" ? " %" : "%"}</b><span>{T.plant}</span>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginTop: 14 }}>
+              <div className="result-line"><b>{Math.round(share * 100)}{lang === "fr" ? " %" : "%"}</b><span>{T.plant}</span></div>
+              <span className="fmeta">{total} {T.kg}</span>
             </div>
-            <div className="fmeta" style={{ marginTop: 2 }}>{total} {T.kg}</div>
           </div>
-          <div className="methods-row rise" style={{ animationDelay: "1.1s" }}>
-            <span className="mpill" style={{ background: "var(--lav)" }}><b>Protein Tracker</b>Green Protein Alliance</span>
-            <span className="mpill" style={{ background: "var(--peach)" }}><b>WWF</b>Planet-Based Diets</span>
-          </div>
-          <div className="fmeta" style={{ textAlign: "center", marginTop: 8 }}>{T.methods}</div>
         </div>
       </div>
+    </section>
+  );
+}
+
+export function Methods({ lang, onNext }: P) {
+  const T = STRINGS[lang].methods;
+  const rows = ["owner", "unit", "groups", "scope", "reports"] as const;
+  return (
+    <section className="slide">
+      <p className="eyebrow rise">{T.eyebrow}</p>
+      <h1 className="display lg rise d1">{T.title}</h1>
+      <p className="lead rise d2" style={{ maxWidth: "62ch" }}>{T.lead}</p>
+      <div className="mtable rise d3">
+        <div className="mhead" />
+        <div className="mhead" style={{ background: "var(--lav)" }}><b>{T.pt.name}</b></div>
+        <div className="mhead" style={{ background: "var(--peach)" }}><b>{T.wwf.name}</b></div>
+        {rows.map((r) => (
+          <div key={r} style={{ display: "contents" }}>
+            <div className="mlabel">{T.rows[r]}</div>
+            <div className={`mcell ${r === "unit" ? "strong" : ""}`}>{T.pt[r]}</div>
+            <div className={`mcell ${r === "unit" ? "strong" : ""}`}>{T.wwf[r]}</div>
+          </div>
+        ))}
+      </div>
+      <div className="actions rise d4"><button className="pill pill-dark" onClick={onNext} autoFocus>{T.go} <Arrow /></button></div>
     </section>
   );
 }

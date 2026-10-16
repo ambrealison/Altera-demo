@@ -1,17 +1,19 @@
-// The guided tour. Five chapters that follow, in order, the eleven steps of
+// The guided tour. Seven chapters that follow, in order, the eleven steps of
 // "How Altera AI works" (Altera-agent repository):
-//   1 Import    — steps 1 and 2 (receive, scope)
-//   2 Classify  — step 3
-//   3 Protein   — steps 4 and 5 (content, plant / animal split)
-//   4 Ratio     — steps 6 and 7 (volumes, calculation)
-//   5 Deliver   — steps 8 to 11 (checks, accuracy, delivery, what is kept)
+//   1 Data intake          steps 1–2   receive and inventory, scope and keys
+//   2 Classification       step 3
+//   3 Protein content      step 4
+//   4 Plant / animal split step 5
+//   5 Calculation          steps 6–7   volumes, both methodologies
+//   6 Quality control      steps 8–9   checks, accuracy
+//   7 Deliverables         steps 10–11 delivery, what is kept and what is not
 
-export type Scene = "import" | "classify" | "protein" | "ratio" | "deliver";
+export type Scene = "intake" | "classify" | "protein" | "split" | "calculate" | "quality" | "deliver";
 
 export interface Stop {
   /** Key into TIPS. */
   id: string;
-  /** Chapter, 1 to 5. */
+  /** Chapter, 1 to 7. */
   chapter: number;
   scene: Scene;
   /** Sub-state of the scene: what is revealed so far. */
@@ -23,14 +25,20 @@ export interface Stop {
 }
 
 export const STOPS: Stop[] = [
-  { id: "import", chapter: 1, scene: "import", sub: 0, anchor: "file", side: "below" },
-  { id: "scope", chapter: 1, scene: "import", sub: 1, anchor: "scope", side: "above" },
-  { id: "classify", chapter: 2, scene: "classify", sub: 0, anchor: "buckets", side: "below" },
-  { id: "review", chapter: 2, scene: "classify", sub: 1, anchor: "review", side: "above" },
-  { id: "protein", chapter: 3, scene: "protein", sub: 0, anchor: "prot-value", side: "below" },
-  { id: "split", chapter: 3, scene: "protein", sub: 1, anchor: "split", side: "left" },
-  { id: "ratio", chapter: 4, scene: "ratio", sub: 0, anchor: "ring", side: "right" },
-  { id: "aisles", chapter: 4, scene: "ratio", sub: 1, anchor: "aisles", side: "left" },
-  { id: "excel", chapter: 5, scene: "deliver", sub: 0, anchor: "excel", side: "right" },
-  { id: "privacy", chapter: 5, scene: "deliver", sub: 1, anchor: "privacy", side: "left" },
+  { id: "intake", chapter: 1, scene: "intake", sub: 0, anchor: "inventory", side: "right" },
+  { id: "scope", chapter: 1, scene: "intake", sub: 1, anchor: "scope", side: "left" },
+  { id: "classes", chapter: 2, scene: "classify", sub: 0, anchor: "pt-classes", side: "below" },
+  { id: "sources", chapter: 2, scene: "classify", sub: 1, anchor: "sources", side: "above" },
+  { id: "review", chapter: 2, scene: "classify", sub: 2, anchor: "review", side: "above" },
+  { id: "cascade", chapter: 3, scene: "protein", sub: 0, anchor: "cascade", side: "right" },
+  { id: "perpack", chapter: 3, scene: "protein", sub: 1, anchor: "perpack", side: "left" },
+  { id: "origin", chapter: 4, scene: "split", sub: 0, anchor: "split", side: "right" },
+  { id: "levels", chapter: 4, scene: "split", sub: 1, anchor: "levels", side: "left" },
+  { id: "pt", chapter: 5, scene: "calculate", sub: 0, anchor: "pt", side: "below" },
+  { id: "wwf", chapter: 5, scene: "calculate", sub: 1, anchor: "wwf", side: "below" },
+  { id: "depts", chapter: 5, scene: "calculate", sub: 2, anchor: "depts", side: "above" },
+  { id: "checks", chapter: 6, scene: "quality", sub: 0, anchor: "checks", side: "right" },
+  { id: "accuracy", chapter: 6, scene: "quality", sub: 1, anchor: "accuracy", side: "left" },
+  { id: "deliverables", chapter: 7, scene: "deliver", sub: 0, anchor: "deliverables", side: "right" },
+  { id: "governance", chapter: 7, scene: "deliver", sub: 1, anchor: "governance", side: "left" },
 ];

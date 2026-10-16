@@ -1,74 +1,52 @@
 // Every number and product the tour shows, computed once from the fictitious catalogue.
-import { FILL, FUNNEL, PRODUCTS, PT_CLASSES, inScope, proteinTracker, wwf, wwfPlantShare } from "./calc";
-import type { Product, PtClass } from "./types";
+import { FILL, FUNNEL, PRODUCTS, PT_CLASSES, FOOD_GROUPS, inScope, hasIssue, proteinTracker, wwf, wwfPlantShare, wwfWholeShare } from "./calc";
+import type { Product, ProtSrc, PtClass, Route } from "./types";
 
 export const PT = proteinTracker({});
 export const WWF = wwf({});
 
-// ------------------------------------------------------------ icons
-const FAMILY_ICON: Record<string, string> = {
-  "BBQ & Marinated": "🍖", Baking: "🌾", Beef: "🥩", "Beer & Cider": "🍺", Biscuits: "🍪", Bread: "🍞",
-  "Butter & Spreads": "🧈", Cakes: "🍰", "Canned Fish": "🐟", "Canned Vegetables": "🥫", "Cereal Bars": "🍫",
-  Cereals: "🥣", Chocolate: "🍫", Condiments: "🥫", "Cooked Meats": "🥓", "Cooking Sauces": "🥫", Crisps: "🥔",
-  "Cured Meats": "🥓", "Dairy Alternatives": "🌱", Dips: "🫘", Eggs: "🥚", "Exotic Fruit": "🥭", "Fresh Cheese": "🧀",
-  "Fresh Fish": "🐟", "Fresh Pasta": "🍝", "Frozen Fish": "🐟", "Frozen Potatoes": "🍟", "Frozen Vegetables": "🥦",
-  Fruit: "🍎", "Hard Cheese": "🧀", "Herbs & Spices": "🌿", Household: "🧻", "Ice Cream": "🍦", Juice: "🧃",
-  "Meat Alternatives": "🌱", Milk: "🥛", "Milk Drinks": "🥛", "Nuts & Seeds": "🥜", Oils: "🫒", Pasta: "🍝",
-  Pastries: "🥐", Pizza: "🍕", "Plant Drinks": "🌾", "Plant Yoghurts": "🥥", Pork: "🥩", Potatoes: "🥔",
-  Poultry: "🍗", Pulses: "🫘", "Pâté": "🥓", "Ready Meals": "🍲", "Rice & Grains": "🍚", Sandwiches: "🥪",
-  "Sausages & Burgers": "🌭", Shellfish: "🦐", "Smoked Fish": "🐟", "Soft Cheese": "🧀", "Soft Drinks": "🥤",
-  Spirits: "🥃", "Sports Nutrition": "🥤", Spreads: "🥜", "Stock & Gravy": "🥫", Sushi: "🍣", "Tea & Coffee": "☕",
-  "Tofu & Tempeh": "🌱", "Turkey & Lamb": "🍖", Vegetables: "🥦", Water: "💧", Wine: "🍷", Yoghurt: "🥣",
-};
-const PRODUCE_ICON: [RegExp, string][] = [
-  [/CARROT/, "🥕"], [/TOMATO/, "🍅"], [/BANANA/, "🍌"], [/APPLE/, "🍎"], [/PEAR/, "🍐"], [/LEMON/, "🍋"],
-  [/AVOCADO/, "🥑"], [/CUCUMBER/, "🥒"], [/ONION/, "🧅"], [/GRAPE/, "🍇"], [/STRAWB/, "🍓"], [/ORANGE|CLEMENTINE|EASY PEEL/, "🍊"],
-  [/MUSHROOM/, "🍄"], [/PEPPER/, "🫑"], [/LETTUCE|SALAD|SPINACH/, "🥬"], [/MELON/, "🍈"], [/PINEAPPLE/, "🍍"],
-  [/MANGO/, "🥭"], [/GARLIC/, "🧄"], [/CORN/, "🌽"], [/POTATO/, "🥔"], [/BLUEBERR|RASPBERR/, "🫐"], [/KIWI/, "🥝"],
-];
-const PRODUCE = new Set(["Fruit", "Vegetables", "Exotic Fruit", "Frozen Vegetables", "Potatoes"]);
+const count = (cond: (p: Product) => boolean, rows: Product[] = inScope) => rows.filter(cond).length;
 
-export function icon(p: Product): string {
-  if (PRODUCE.has(p.family)) for (const [re, e] of PRODUCE_ICON) if (re.test(p.label)) return e;
-  return FAMILY_ICON[p.family] ?? "🛒";
-}
-export const DEPT_ICON: Record<string, string> = {
-  "Fresh Meat & Poultry": "🥩", "Dairy & Eggs": "🥛", Cheese: "🧀", Grocery: "🥫", "Plant-Based": "🌱",
-  "Fish & Seafood": "🐟", Deli: "🥓", Bakery: "🍞", Frozen: "🧊", "Ready Meals": "🍲", "Breakfast & Snacks": "🥣",
-  "Fruit & Vegetables": "🥦", "Soft Drinks & Water": "🥤", "Beer, Wine & Spirits": "🍷", Household: "🧻",
-};
-export const shortName = (p: Product) => p.name.split(",")[0];
+export const CLASS_COUNT = Object.fromEntries(PT_CLASSES.map((c) => [c, count((p) => p.pt === c)])) as Record<PtClass, number>;
+export const CLASS_EXAMPLE = Object.fromEntries(PT_CLASSES.map((c) => [c, inScope.find((p) => p.pt === c && p.route === "inherited")!])) as Record<PtClass, Product>;
 
-// ------------------------------------------------------------ tiles
-/** One product per family, in a fixed order that mixes aisles; two non-food items among them. */
-const TILE_FAMILIES = ["Beef", "Milk", "Bread", "Fruit", "Hard Cheese", "Pulses", "Household", "Poultry", "Yoghurt", "Pizza",
-  "Vegetables", "Tofu & Tempeh", "Crisps", "Fresh Fish", "Pasta", "Eggs", "Ready Meals", "Nuts & Seeds", "Chocolate", "Meat Alternatives"];
-export const IMPORT_TILES: Product[] = TILE_FAMILIES.map((f) => PRODUCTS.find((p) => p.family === f)!).filter(Boolean);
+export const FG_COUNT = Object.fromEntries(FOOD_GROUPS.map((g) => [g, count((p) => !!p.wwf_in && p.wwf.struct === "whole" && p.wwf.fg === g)])) as Record<string, number>;
+export const WWF_COMPOSITES = count((p) => !!p.wwf_in && p.wwf.struct === "composite");
+export const WWF_EXCLUDED = count((p) => !p.wwf_in);
 
-/** A sample of each class, preferring distinct families. */
-export const CLASS_TILES: Record<PtClass, Product[]> = Object.fromEntries(PT_CLASSES.map((c) => {
-  const rows = inScope.filter((p) => p.pt === c);
-  const seen = new Set<string>(); const out: Product[] = [];
-  for (const p of rows) if (!seen.has(p.family)) { seen.add(p.family); out.push(p); }
-  for (const p of rows) if (out.length < 16 && !out.includes(p)) out.push(p);
-  return [c, out.slice(0, 16)];
-})) as Record<PtClass, Product[]>;
+const EXCL = ["alcohol", "beverage", "coffee_tea", "condiment", "herbs_spices", "stock"] as const;
+export const EXCL_COUNT = Object.fromEntries(EXCL.map((e) => [e, count((p) => !p.wwf_in && p.wwf.excl === e)])) as Record<(typeof EXCL)[number], number>;
 
-export const CLASS_COUNT: Record<PtClass, number> = Object.fromEntries(
-  PT_CLASSES.map((c) => [c, inScope.filter((p) => p.pt === c).length]),
-) as Record<PtClass, number>;
-
+const ROUTES: Route[] = ["inherited", "stratum", "model"];
+export const ROUTE_COUNT = Object.fromEntries(ROUTES.map((r) => [r, count((p) => p.route === r)])) as Record<Route, number>;
 export const REVIEW = inScope.filter((p) => p.review);
+
+const PROT: ProtSrc[] = ["declared", "reference_base", "off_ean", "name_match", "stratum_median"];
+export const PROT_COUNT = Object.fromEntries(PROT.map((s) => [s, count((p) => p.prot_src === s)])) as Record<ProtSrc, number>;
+
+export const PER_PACK = (() => {
+  const p = PRODUCTS.find((x) => hasIssue(x, "per_pack_protein") && /PUMPKIN/.test(x.label))!;
+  const kcal = (prot: number) => Math.round(4 * prot + 9 * (p.fat ?? 0) + 4 * (p.carb ?? 0));
+  return { p, declaredKcal: kcal(p.prot ?? 0), impliedKcal: kcal(p.prot_declared_bad ?? 0) };
+})();
+
 export const CRISPS = PRODUCTS.find((p) => p.note === "origin_vs_split" && /SOUR/.test(p.label))!;
 
 export const F = {
   rows: PRODUCTS.length,
   fill: FILL,
   funnel: FUNNEL,
-  setAside: FUNNEL.received - FUNNEL.measured,
   ptRatio: PT.ratio,
+  levelA: PT.levelA / PT.total,
   wwfPlant: wwfPlantShare(WWF),
+  wwfWhole: wwfWholeShare(WWF),
+  fg1Plant: WWF.byGroup.FG1.plant / (WWF.byGroup.FG1.total || 1),
+  fg2Plant: WWF.byGroup.FG2.plant / (WWF.byGroup.FG2.total || 1),
   crispsPlant: (CRISPS.plant ?? 0) / (CRISPS.prot || 1),
 };
 
-export const AISLES = PT.byDept.slice(0, 7);
+export const DEPTS = PT.byDept.slice(0, 7);
+
+/** Rows shown in the workbook preview. */
+export const SHEET_ROWS: Product[] = ["Dairy & Eggs", "Fresh Meat & Poultry", "Plant-Based", "Bakery", "Breakfast & Snacks"].map((d) =>
+  inScope.filter((p) => p.dept === d && (p.units ?? 0) > 0).sort((a, b) => b.units! * b.weight - a.units! * a.weight)[0]).filter(Boolean);

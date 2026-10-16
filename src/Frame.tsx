@@ -1,8 +1,8 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type { Lang } from "./lib/types";
-import { CHAPTERS, STRINGS, TIPS, UI_STR, fill } from "./lib/i18n";
-import { fmtPct } from "./lib/calc";
-import { F, REVIEW } from "./lib/facts";
+import { CHAPTERS, METHOD_STEPS, STRINGS, TIPS, UI_STR, fill } from "./lib/i18n";
+import { fmtNum, fmtPct } from "./lib/calc";
+import { F, PER_PACK, REVIEW, ROUTE_COUNT } from "./lib/facts";
 import { STOPS, type Stop } from "./tour";
 import { SceneView } from "./scenes";
 
@@ -10,8 +10,11 @@ const W = 1240, H = 760, TIP_W = 340, GAP = 26;
 
 function tipVars(lang: Lang) {
   return {
-    measured: F.funnel.measured, rev: REVIEW.length,
-    pl: fmtPct(F.crispsPlant, lang, 0), ratio: fmtPct(F.ptRatio, lang, 1),
+    fp: fmtPct(F.fill.protein, lang, 0), fi: fmtPct(F.fill.ingredients, lang, 0),
+    measured: F.funnel.measured, wwf: F.funnel.wwf,
+    inh: ROUTE_COUNT.inherited, str: ROUTE_COUNT.stratum, mod: ROUTE_COUNT.model, rev: REVIEW.length,
+    bad: fmtNum(PER_PACK.p.prot_declared_bad ?? 0, lang, 1), good: fmtNum(PER_PACK.p.prot ?? 0, lang, 1),
+    pl: fmtPct(F.crispsPlant, lang, 0), ratio: fmtPct(F.ptRatio, lang, 1), wwfp: fmtPct(F.wwfPlant, lang, 1),
   };
 }
 type Side = "left" | "right" | "below" | "above";
@@ -85,7 +88,8 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
   let tip = { left: 0, top: 0, arrowTop: 0, arrowLeft: 0, side: "right" as Side };
   if (pt?.side === "below" || pt?.side === "above") {
     const left = Math.max(12, Math.min(W - TIP_W - 12, pt.x - TIP_W / 2));
-    const top = pt.side === "below" ? pt.y + GAP : pt.y - GAP - tipH;
+    const want = pt.side === "below" ? pt.y + GAP : pt.y - GAP - tipH;
+    const top = Math.max(12, Math.min(H - tipH - 12, want));
     tip = { left, top, arrowTop: 0, arrowLeft: pt.x - left - 7, side: pt.side };
   } else if (pt) {
     const right = pt.side === "right" && pt.x + GAP + TIP_W < W - 12;
@@ -142,7 +146,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                   </aside>
                   <main className="main">
                     <div className="shead" key={`h-${stop.chapter}-${lang}`} style={{ animation: "fadein .5s both" }}>
-                      <div className="k">{fill(U.stepOf, { n: stop.chapter })}</div>
+                      <div className="k">{fill(U.chapterOf, { n: stop.chapter })}<span className="kstep">{fill(U.methodSteps, { s: METHOD_STEPS[stop.chapter - 1] })}</span></div>
                       <h2>{CHAPTERS[lang][stop.chapter - 1]}</h2>
                       <p>{U.sub[stop.chapter - 1]}</p>
                     </div>

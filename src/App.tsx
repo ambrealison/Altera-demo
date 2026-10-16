@@ -4,12 +4,12 @@ import { CHAPTERS, STRINGS } from "./lib/i18n";
 import { BOOKING_URL } from "./config";
 import { STOPS } from "./tour";
 import { Tour } from "./Frame";
-import { Cover, End, Intro } from "./slides";
+import { Cover, End, Methods, Ratio } from "./slides";
 
-// The whole demo is one linear sequence: cover, one intro slide, the guided tour, the close.
-type Screen = { kind: "cover" | "intro" | "end" } | { kind: "tour"; i: number };
+// The whole demo is one linear sequence: cover, two intro slides, the guided tour, the close.
+type Screen = { kind: "cover" | "ratio" | "methods" | "end" } | { kind: "tour"; i: number };
 const SCREENS: Screen[] = [
-  { kind: "cover" }, { kind: "intro" },
+  { kind: "cover" }, { kind: "ratio" }, { kind: "methods" },
   ...STOPS.map((_, i) => ({ kind: "tour" as const, i })),
   { kind: "end" },
 ];
@@ -83,7 +83,8 @@ export default function App() {
       </header>
 
       {screen.kind === "cover" && <Cover key={`c-${lang}`} lang={lang} onNext={next} />}
-      {screen.kind === "intro" && <Intro key={`i-${lang}`} lang={lang} onNext={next} />}
+      {screen.kind === "ratio" && <Ratio key={`r-${lang}`} lang={lang} onNext={next} />}
+      {screen.kind === "methods" && <Methods key={`m-${lang}`} lang={lang} onNext={next} />}
       {screen.kind === "tour" && <Tour index={screen.i} lang={lang} onNext={next} onBack={back} />}
       {screen.kind === "end" && <End key={`e-${lang}`} lang={lang} onRestart={() => setI(0)} />}
     </div>
