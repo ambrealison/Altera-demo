@@ -19,11 +19,11 @@ real retailer or a measured accuracy.
 ## Use
 
 - **Next** / **Back** in the tooltip, a click on the pulsing hotspot, or `←` / `→`.
-- Every screen has its own link: `…/?lang=fr#classify`, `…/?lang=en#result`.
+- Every screen has its own link: `…/?lang=fr#classes`, `…/?lang=en#wwf`.
 
 ## Structure
 
-- `src/tour.ts` — the 16 stops: chapter, screen, what is revealed, anchor, tooltip side.
+- `src/tour.ts` — the 14 stops: chapter, screen, what is revealed, anchor, tooltip side.
 - `src/scenes.tsx` — the seven app screens.
 - `src/Frame.tsx` — the app window, the chapter sidebar, hotspot and tooltip placement.
 - `src/slides.tsx` — intro and closing slides.
@@ -47,8 +47,12 @@ regenerates, deterministically:
   refuses to write a catalogue that breaks a methodology rule (plant/animal invariant,
   composites with a food group, ×10 outside cheese, mass balance…).
 - `public/downloads/` — the demo workbook and line-level CSV
-  (`scripts/build_deliverable.py`). Every figure is a formula; the script recalculates
-  the workbook with LibreOffice and compares it to Python before finishing.
+  (`scripts/build_deliverable.py`). The workbook follows the layout of a real Altera
+  deliverable: Welcome (the volumes, its only input), WWF, Protein Tracker, By family,
+  By department, By brand, Top and flop, and the line-level Data tab. Every figure is a
+  formula; the script recalculates the workbook with LibreOffice and compares each
+  formula cell to Python before finishing. It names no real retailer and shows no
+  accuracy figure.
 
 Both need Python 3 with `openpyxl`; the recalculation check needs LibreOffice.
 

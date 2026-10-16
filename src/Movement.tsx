@@ -122,10 +122,7 @@ export function Movement({ lang, onRestart }: { lang: Lang; onRestart: () => voi
         </ol>
         <div className="end-note">
           <p>{T.disclaimer}</p>
-          <span style={{ display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
-            <a className="textlink" href={DOWNLOADS.workbook} download>{T.sample}</a>
-            <span>{T.built}</span>
-          </span>
+          <a className="textlink" href={DOWNLOADS.workbook} download>{T.sample}</a>
         </div>
       </div>
     </section>

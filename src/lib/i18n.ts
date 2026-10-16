@@ -75,7 +75,6 @@ const en = {
     restart: "Restart the demo",
     sample: "Download the sample workbook",
     disclaimer: "Harbour Market, its brands and its figures are invented. On a real engagement, accuracy depends on the data supplied and is measured each time.",
-    built: "Built with Claude",
   },
 };
 type Dict = typeof en;
@@ -149,7 +148,6 @@ const fr: Dict = {
     restart: "Revoir la démo",
     sample: "Télécharger le classeur d'exemple",
     disclaimer: "Harbour Market, ses marques et ses chiffres sont inventés. Sur une vraie mission, l'exactitude dépend des données fournies et se mesure à chaque fois.",
-    built: "Conçu avec Claude",
   },
 };
 
@@ -176,9 +174,8 @@ export const TIPS: Record<Lang, Record<string, [string, string]>> = {
     wwf: ["WWF: tonnes of product", "WWF counts tonnes, not protein: the plant share of protein-rich foods (FG1) and dairy (FG2), cheese counted ×10 in dairy equivalents, and whole versus composite products."],
     pt: ["Protein Tracker: the protein ratio", "Each product weighs as much as it sells: volume × net weight × protein per 100 g. The result is the plant share of all the protein sold — reported separately from WWF."],
     depts: ["Where the levers are", "Both ratios break down by department, family and product, so CSR and category teams can see which aisles move them."],
-    checks: ["Every check is seen to fail first", "Each check is run on a deliberately broken case before the real deliverable — a check that cannot fail proves nothing. Then every one of them must pass."],
-    accuracy: ["Accuracy, measured by people", "A control sample: 500 rows drawn at random, the 500 products weighing most in tonnes of protein, and the 3 best sellers of every category. Sealed, then reviewed by hand. One rate per field."],
-    deliverables: ["Ready for reporting", "A formula-driven Excel workbook with a single input column, the line-level file with the source of every value, and the scope statement WWF requires."],
+    accuracy: ["Accuracy, measured by people", "Once every automated check passes, a control sample: 500 rows drawn at random, the 500 products weighing most in tonnes of protein, and the 3 best sellers of every category. Sealed, then reviewed by hand. One rate per field."],
+    deliverables: ["Ready for reporting", "A formula-driven Excel workbook whose only input is your volumes, a PDF report full of insights — where the ratio comes from and which departments, families and brands move it — the line-level file with the source of every value, and the scope statement WWF requires."],
     governance: ["Your data stays yours", "Sales volumes are never sent to the AI. Nothing from one retailer is ever shown to another. Altera keeps product knowledge, keyed by barcode — never who sold it."],
   },
   fr: {
@@ -193,9 +190,8 @@ export const TIPS: Record<Lang, Record<string, [string, string]>> = {
     wwf: ["WWF : des tonnes de produit", "WWF compte des tonnes, pas des protéines : part végétale des aliments protéiques (FG1) et des laitiers (FG2), fromage compté ×10 en équivalent lait, produits entiers et composites."],
     pt: ["Protein Tracker : le ratio protéique", "Chaque produit pèse ses ventes : volume × poids net × protéines pour 100 g. Le résultat est la part végétale de toutes les protéines vendues — présentée séparément de WWF."],
     depts: ["Où sont les leviers", "Les deux ratios se déclinent par rayon, famille et produit : équipes RSE et catégories voient quels rayons les font bouger."],
-    checks: ["Chaque contrôle doit d'abord échouer", "Chaque contrôle est lancé sur un cas volontairement faux avant le vrai livrable — un contrôle qui ne peut pas échouer ne prouve rien. Ensuite, tous doivent passer."],
-    accuracy: ["L'exactitude, mesurée par des personnes", "Un échantillon de contrôle : 500 lignes tirées au hasard, les 500 produits qui pèsent le plus en tonnes de protéines, et les 3 meilleures ventes de chaque catégorie. Scellé, puis relu à la main. Un taux par champ."],
-    deliverables: ["Prêt pour le reporting", "Un classeur Excel tout en formules avec une seule colonne de saisie, le fichier ligne à ligne avec la source de chaque valeur, et la déclaration de périmètre exigée par WWF."],
+    accuracy: ["L'exactitude, mesurée par des personnes", "Une fois tous les contrôles automatiques passés, un échantillon de contrôle : 500 lignes tirées au hasard, les 500 produits qui pèsent le plus en tonnes de protéines, et les 3 meilleures ventes de chaque catégorie. Scellé, puis relu à la main. Un taux par champ."],
+    deliverables: ["Prêt pour le reporting", "Un classeur Excel tout en formules dont la seule saisie est vos volumes, un rapport PDF riche en enseignements — d'où vient le ratio, quels rayons, familles et marques le font bouger — le fichier ligne à ligne avec la source de chaque valeur, et la déclaration de périmètre exigée par WWF."],
     governance: ["Vos données restent les vôtres", "Les volumes de vente ne sont jamais envoyés à l'IA. Rien d'un distributeur n'est jamais montré à un autre. Altera conserve la connaissance produit, par code-barres — jamais qui l'a vendu."],
   },
 };
@@ -253,14 +249,14 @@ const uiEn = {
     ["Data", ["Energy balance of declared values", "Every value has a source"]],
     ["Workbook", ["Every formula recomputed outside Excel", "Every tab evaluated in a spreadsheet"]],
   ] as [string, string[]][],
-  fabricated: "Fabricated case", failedAsExpected: "failed, as expected", plantAdded: "with plant protein added",
   allPass: "All checks pass",
   sample: "Control sample", sealed: "Sealed before review",
   sampleGroups: [["500", "rows drawn at random"], ["500", "largest products in tonnes of protein"], ["3", "best sellers of every category"]] as [string, string][],
   fields: ["Whole or composite", "Food group", "Sub-group", "Protein Tracker class"], perEngagement: "one rate per field",
   reviewer: "Reviewed by hand. No model grades a model.",
   files: [
-    ["Workbook", "XLSX", "Formula-driven · one input column: volumes"],
+    ["Workbook", "XLSX", "Formula-driven · one input: your volumes"],
+    ["Insights report", "PDF", "Key findings · levers by department, family and brand"],
     ["Line-level file", "CSV", "Classes, contents, split, data level, source of every value"],
     ["Scope statement", "DOC", "Required by WWF · Appendix A, tab 6"],
   ] as [string, string, string][],
@@ -326,14 +322,14 @@ const uiFr: UI = {
     ["Données", ["Bilan énergétique des valeurs déclarées", "Chaque valeur a une source"]],
     ["Classeur", ["Chaque formule recalculée hors d'Excel", "Chaque onglet évalué dans un tableur"]],
   ] as [string, string[]][],
-  fabricated: "Cas fabriqué", failedAsExpected: "échoue, comme prévu", plantAdded: "avec des protéines végétales ajoutées",
   allPass: "Tous les contrôles passent",
   sample: "Échantillon de contrôle", sealed: "Scellé avant relecture",
   sampleGroups: [["500", "lignes tirées au hasard"], ["500", "plus gros produits en tonnes de protéines"], ["3", "meilleures ventes de chaque catégorie"]] as [string, string][],
   fields: ["Entier ou composite", "Groupe d'aliments", "Sous-groupe", "Classe Protein Tracker"], perEngagement: "un taux par champ",
   reviewer: "Relu à la main. Aucun modèle ne note un modèle.",
   files: [
-    ["Classeur", "XLSX", "Tout en formules · une seule saisie : les volumes"],
+    ["Classeur", "XLSX", "Tout en formules · une seule saisie : vos volumes"],
+    ["Rapport d'analyse", "PDF", "Enseignements clés · leviers par rayon, famille et marque"],
     ["Fichier ligne à ligne", "CSV", "Classes, teneurs, partage, niveau de donnée, source de chaque valeur"],
     ["Déclaration de périmètre", "DOC", "Exigée par WWF · Appendix A, onglet 6"],
   ] as [string, string, string][],

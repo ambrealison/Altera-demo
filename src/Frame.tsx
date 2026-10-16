@@ -95,17 +95,12 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
         tip.side === "below" ? { top: -6, left: tip.arrowLeft }
         : tip.side === "above" ? { bottom: -6, left: tip.arrowLeft }
         : { top: tip.arrowTop, [tip.side === "right" ? "left" : "right"]: -6 }} />}
-      <div className="tmeta">
-        <span>{fill(U.stepN, { n: stop.chapter })} · {STEPS[lang][stop.chapter - 1]}</span>
-        <span>{index + 1} / {STOPS.length}</span>
-      </div>
+      <div className="tmeta">{fill(U.stepN, { n: stop.chapter })} · {STEPS[lang][stop.chapter - 1]}</div>
       <h3>{title}</h3>
       <p>{text}</p>
       <div className="tact">
         <button className="tback" onClick={onBack} aria-label={S.back}>←</button>
-        <span className="dotsbar" aria-hidden>
-          {STEPS[lang].map((_, i) => <i key={i} className={i < stop.chapter ? "on" : ""} />)}
-        </span>
+        <span className="tcount">{index + 1}<i>/</i>{STOPS.length}</span>
         <button className="tnext" onClick={onNext} autoFocus>{last ? S.finish : S.next} <span>→</span></button>
       </div>
     </div>

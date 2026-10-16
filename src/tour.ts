@@ -36,7 +36,6 @@ export const STOPS: Stop[] = [
   { id: "wwf", chapter: 5, scene: "calculate", sub: 0, anchor: "wwf", side: "below" },
   { id: "pt", chapter: 5, scene: "calculate", sub: 1, anchor: "pt", side: "below" },
   { id: "depts", chapter: 5, scene: "calculate", sub: 2, anchor: "depts", side: "above" },
-  { id: "checks", chapter: 6, scene: "quality", sub: 0, anchor: "checks", side: "right" },
   { id: "accuracy", chapter: 6, scene: "quality", sub: 1, anchor: "accuracy", side: "left" },
   { id: "deliverables", chapter: 7, scene: "deliver", sub: 0, anchor: "deliverables", side: "right" },
   { id: "governance", chapter: 7, scene: "deliver", sub: 1, anchor: "governance", side: "left" },

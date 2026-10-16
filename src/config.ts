@@ -1,6 +1,6 @@
-/** The closing call to action: the booking page used on alterafood.org ("Planifier un échange"). */
+/** The call to action: Altera's appointment booking page. */
 export const BOOKING_URL =
-  "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2-it9xrPSYbBhsrjoFlc6RVb0WzUBPgmUs1t1A3YJ6XRxjE-kAi_J2GPzuVNZhQcfDwF4ObhOv";
+  "https://calendar.google.com/appointments/schedules/AcZssZ3Ft80cRX9S775isS1JromPC4cnU7qQvtdJC6jh7ePlIEe8xlKqjuxUsqtR-qw30JNnPhbFGbyO";
 
 /** Fictitious deliverables, built by scripts/build_deliverable.py into public/downloads. */
 export const DOWNLOADS = {

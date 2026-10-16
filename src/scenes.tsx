@@ -42,6 +42,7 @@ const I = {
   shield: "M12 3l7 3v5c0 4.6-3 8.3-7 10-4-1.7-7-5.4-7-10V6z",
   user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20a7.5 7.5 0 0 1 15 0",
   bolt: "M13 3L5 13h6l-1 8 8-10h-6z",
+  report: "M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM14 3v5h5M9 17v-3M12 17v-6M15 17v-2",
 };
 
 function Bar({ v, color = "var(--green)", grow, h = 8 }: { v: number; color?: string; grow: boolean; h?: number }) {
@@ -305,28 +306,22 @@ function Calculate(p: P) {
 // ------------------------------------------------------------ 6 · checks and measures accuracy (method steps 8–9)
 function Quality(p: P) {
   const U = UI_STR[p.lang];
-  const demo = p.sub === 0;
   const tones = ["var(--green)", "var(--ink)", "var(--comp)"];
   return (
     <div className="grid2" style={{ gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 0.8fr)", flex: 1, minHeight: 0 }}>
-      <Card title={U.checksTitle} aside={<span className={cx("chip", demo ? "bad" : "ok")}>{demo ? U.fabricated : U.allPass}</span>}
-        className={on(p, "checks")} anchor="checks">
-        <div className={cx("demo-fail", !demo && "fixed")}>
-          <span className="ibox sm" style={{ background: demo ? "var(--red)" : "var(--green)", color: "var(--white)" }}><Ico d={demo ? I.cross : I.check} size={14} /></span>
-          <span><b>{U.checkGroups[1][1][3]}</b> · {U.fabricated} : <span className="mono">{CLASS_EXAMPLE.animal_core.label}</span> {U.plantAdded} → {demo ? U.failedAsExpected : "✓"}</span>
-        </div>
+      <Card title={U.checksTitle} aside={<span className="chip ok">{U.allPass}</span>} anchor="checks">
         <div className="cgroups">
           {U.checkGroups.map(([gname, xs]) => (
             <div key={gname}>
               <div className="fmeta upper" style={{ marginBottom: 4 }}>{gname}</div>
               {xs.map((x) => (
-                <div className="citem" key={x}><span className={cx("tk", demo && "wait")}><Ico d={I.check} size={12} /></span>{x}</div>
+                <div className="citem" key={x}><span className="tk"><Ico d={I.check} size={12} /></span>{x}</div>
               ))}
             </div>
           ))}
         </div>
       </Card>
-      <Card title={U.sample} aside={<span className="chip ink"><Ico d={I.lock} size={12} /> {U.sealed}</span>} className={cx(p.sub < 1 && "dim", on(p, "accuracy"))} anchor="accuracy">
+      <Card title={U.sample} aside={<span className="chip ink"><Ico d={I.lock} size={12} /> {U.sealed}</span>} className={on(p, "accuracy")} anchor="accuracy">
         <div className="sgroups">
           {U.sampleGroups.map(([n, label], i) => (
             <div className="sgroup" key={label}>
@@ -346,7 +341,7 @@ function Quality(p: P) {
 // ------------------------------------------------------------ 7 · delivers the results (method steps 10–11)
 function Deliver(p: P) {
   const U = UI_STR[p.lang];
-  const icons = [I.sheet, I.table, I.doc];
+  const icons = [I.sheet, I.report, I.table, I.doc];
   return (
     <div className="grid2" style={{ gridTemplateColumns: "minmax(0, 1.15fr) minmax(0, 0.85fr)", flex: 1, minHeight: 0 }}>
       <Card className={on(p, "deliverables")} anchor="deliverables">
