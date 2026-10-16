@@ -1,8 +1,13 @@
 # Altera AI — interactive demo
 
-A presenter-driven walkthrough of how Altera AI turns a retailer's catalogue into a
-protein ratio, under the Protein Tracker (GPA / ProVeg) and WWF Planet-Based Diets
-methodologies. English and French.
+A guided product tour of Altera AI, in the style of Arcade or Navattic: three intro
+slides (the protein ratio, the two methodologies, why it matters), then the Altera AI
+app window with one hotspot and one tooltip per stop, following the eleven steps of
+"How Altera AI works" (Altera-agent repository). English and French. The visitor can
+only move forward or back — nothing else on the page is clickable.
+
+Design follows alterafood.org: Archivo and Inter, warm paper background, ink and
+lavender pills, the app shown in a peach frame.
 
 **All data is fictitious.** Harbour Market, its brands, codes and volumes are invented.
 EAN codes use GS1's documentation example prefixes. No figure in this demo describes a
@@ -10,10 +15,16 @@ real retailer or a measured accuracy.
 
 ## Use
 
-- `←` / `→` (or the buttons) move between steps. On a step with an action, the first
-  `→` runs it, the second moves on.
-- Links are shareable per step and language: `…/?lang=fr#classify`.
-- Click any product to see how each value was obtained.
+- **Next** / **Back** in the tooltip, a click on the pulsing hotspot, or `←` / `→`.
+- Every screen has its own link: `…/?lang=fr#classify`, `…/?lang=en#result`.
+
+## Structure
+
+- `src/tour.ts` — the 23 stops: step of the method, screen, what is revealed, anchor.
+- `src/scenes.tsx` — the eleven app screens.
+- `src/Frame.tsx` — the app window, the step sidebar, hotspot and tooltip placement.
+- `src/slides.tsx` — intro and closing slides.
+- `src/lib/i18n.ts` — every text, EN and FR. `src/lib/facts.ts` — every number shown.
 
 ## Develop
 
