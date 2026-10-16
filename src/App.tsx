@@ -77,7 +77,10 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  useEffect(() => { window.scrollTo({ top: 0 }); }, [step]);
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+    document.querySelector(".rail-step.current")?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [step]);
 
   const run = useCallback(() => {
     setRan((r) => ({ ...r, [screen.id]: (r[screen.id] ?? 0) + 1 }));

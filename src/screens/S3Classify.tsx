@@ -89,7 +89,7 @@ export default function S3({ ran, run, take }: ScreenProps) {
             <AgentLog title={`altera-ai · classify · ${f.int(Math.round(N * k))} / ${f.int(N)}`} lines={lines} shown={shown} running={!done} />
           )}
           {ran && done && (
-            <button className="btn btn-ghost" style={{ alignSelf: "flex-start" }} onClick={() => setFilter("review")}>
+            <button className="btn btn-ghost btn-wrap" style={{ alignSelf: "flex-start" }} onClick={() => setFilter("review")}>
               <span className="chip review">{nReview}</span> {fill(T.review, { n: nReview }).replace(String(nReview), "").trim()}
             </button>
           )}
