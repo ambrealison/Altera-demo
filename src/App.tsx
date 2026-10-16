@@ -18,8 +18,8 @@ const hashOf = (s: Screen) => (s.kind === "tour" ? STOPS[s.i].id : s.kind);
 
 function initialLang(): Lang {
   const q = new URLSearchParams(window.location.search).get("lang");
-  if (q === "fr" || q === "en") return q;
-  return navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en";
+  // English by default; French only when the link asks for it (?lang=fr) or the visitor switches.
+  return q === "fr" ? "fr" : "en";
 }
 function indexFromHash(): number {
   const h = window.location.hash.replace("#", "");
@@ -74,7 +74,7 @@ export default function App() {
           </button>
           <span className="spacer" />
           <div className="lang" role="group" aria-label="Language">
-            {(["fr", "en"] as Lang[]).map((l) => (
+            {(["en", "fr"] as Lang[]).map((l) => (
               <button key={l} aria-pressed={lang === l} onClick={() => setLang(l)}>{l.toUpperCase()}</button>
             ))}
           </div>
