@@ -146,7 +146,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                   </aside>
                   <main className="main">
                     <div className="shead" key={`h-${stop.chapter}-${lang}`} style={{ animation: "fadein .5s both" }}>
-                      <div className="k">{fill(U.chapterOf, { n: stop.chapter })}<span className="kstep">{fill(U.methodSteps, { s: METHOD_STEPS[stop.chapter - 1] })}</span></div>
+                      <div className="k">{fill(U.chapterOf, { n: stop.chapter })}<span className="kstep">{fill(METHOD_STEPS[stop.chapter - 1].includes("–") ? U.methodSteps : U.methodStep, { s: METHOD_STEPS[stop.chapter - 1] })}</span></div>
                       <h2>{CHAPTERS[lang][stop.chapter - 1]}</h2>
                       <p>{U.sub[stop.chapter - 1]}</p>
                     </div>

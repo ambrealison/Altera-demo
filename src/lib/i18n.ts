@@ -187,6 +187,7 @@ const uiEn = {
   workflow: "Method",
   chapterOf: "Chapter {n} of 7",
   methodSteps: "Method steps {s}",
+  methodStep: "Method step {s}",
   sub: [
     "The file as received, its contents measured, the scope fixed.",
     "Two methodologies, two classifications, every answer traceable.",
@@ -260,6 +261,7 @@ const uiFr: UI = {
   workflow: "Méthode",
   chapterOf: "Chapitre {n} sur 7",
   methodSteps: "Étapes {s} de la méthode",
+  methodStep: "Étape {s} de la méthode",
   sub: [
     "Le fichier tel que reçu, son contenu mesuré, le périmètre fixé.",
     "Deux méthodologies, deux classifications, chaque réponse traçable.",
