@@ -1,10 +1,11 @@
 # Altera AI — interactive demo
 
-A guided product tour of Altera AI, in the style of Arcade or Navattic: three intro
-slides (the protein ratio, the two methodologies, why it matters), then the Altera AI
-app window with one hotspot and one tooltip per stop, following the eleven steps of
-"How Altera AI works" (Altera-agent repository). English and French. The visitor can
-only move forward or back — nothing else on the page is clickable.
+A guided product tour of Altera AI, in the style of Arcade or Navattic, written for
+retailers: a cover, one intro slide (the protein ratio, the two methodologies, why it
+matters), then the Altera AI app window with one hotspot and one tooltip per stop. Five
+chapters follow, in order, the eleven steps of "How Altera AI works" (Altera-agent
+repository): Import (steps 1–2), Classify (3), Protein (4–5), Ratio (6–7), Deliver
+(8–11). English and French. The visitor can only move forward or back.
 
 Design follows alterafood.org: Archivo and Inter, warm paper background, ink and
 lavender pills, the app shown in a peach frame.
@@ -20,9 +21,9 @@ real retailer or a measured accuracy.
 
 ## Structure
 
-- `src/tour.ts` — the 23 stops: step of the method, screen, what is revealed, anchor.
-- `src/scenes.tsx` — the eleven app screens.
-- `src/Frame.tsx` — the app window, the step sidebar, hotspot and tooltip placement.
+- `src/tour.ts` — the 10 stops: chapter, screen, what is revealed, anchor, tooltip side.
+- `src/scenes.tsx` — the five app screens.
+- `src/Frame.tsx` — the app window, the chapter sidebar, hotspot and tooltip placement.
 - `src/slides.tsx` — intro and closing slides.
 - `src/lib/i18n.ts` — every text, EN and FR. `src/lib/facts.ts` — every number shown.
 

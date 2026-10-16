@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Lang } from "./lib/types";
-import { STRINGS, STEPS } from "./lib/i18n";
+import { CHAPTERS, STRINGS } from "./lib/i18n";
 import { BOOKING_URL } from "./config";
 import { STOPS } from "./tour";
 import { Tour } from "./Frame";
-import { Cover, End, Methods, Ratio, Why } from "./slides";
+import { Cover, End, Intro } from "./slides";
 
-// The whole demo is one linear sequence: three intro slides, the guided tour, the close.
-type Screen = { kind: "cover" | "ratio" | "methods" | "why" | "end" } | { kind: "tour"; i: number };
+// The whole demo is one linear sequence: cover, one intro slide, the guided tour, the close.
+type Screen = { kind: "cover" | "intro" | "end" } | { kind: "tour"; i: number };
 const SCREENS: Screen[] = [
-  { kind: "cover" }, { kind: "ratio" }, { kind: "methods" }, { kind: "why" },
+  { kind: "cover" }, { kind: "intro" },
   ...STOPS.map((_, i) => ({ kind: "tour" as const, i })),
   { kind: "end" },
 ];
@@ -43,7 +43,7 @@ export default function App() {
     window.history.replaceState(null, "", u.toString());
     document.documentElement.lang = lang;
     document.title = screen.kind === "tour"
-      ? `Altera AI — ${STEPS[lang][STOPS[screen.i].step - 1]}`
+      ? `Altera AI — ${CHAPTERS[lang][STOPS[screen.i].chapter - 1]}`
       : `Altera AI — ${S.demo}`;
   }, [lang, screen, S.demo]);
 
@@ -83,9 +83,7 @@ export default function App() {
       </header>
 
       {screen.kind === "cover" && <Cover key={`c-${lang}`} lang={lang} onNext={next} />}
-      {screen.kind === "ratio" && <Ratio key={`r-${lang}`} lang={lang} onNext={next} />}
-      {screen.kind === "methods" && <Methods key={`m-${lang}`} lang={lang} onNext={next} />}
-      {screen.kind === "why" && <Why key={`w-${lang}`} lang={lang} onNext={next} />}
+      {screen.kind === "intro" && <Intro key={`i-${lang}`} lang={lang} onNext={next} />}
       {screen.kind === "tour" && <Tour index={screen.i} lang={lang} onNext={next} onBack={back} />}
       {screen.kind === "end" && <End key={`e-${lang}`} lang={lang} onRestart={() => setI(0)} />}
     </div>

@@ -1,23 +1,20 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type { Lang } from "./lib/types";
-import { STEPS, STRINGS, TIPS, UI_STR, fill } from "./lib/i18n";
-import { fmtNum, fmtPct } from "./lib/calc";
-import { EX, F, PER_PACK } from "./lib/facts";
+import { CHAPTERS, STRINGS, TIPS, UI_STR, fill } from "./lib/i18n";
+import { fmtPct } from "./lib/calc";
+import { F, REVIEW } from "./lib/facts";
 import { STOPS, type Stop } from "./tour";
 import { SceneView } from "./scenes";
 
 const W = 1240, H = 760, TIP_W = 340, GAP = 26;
 
 function tipVars(lang: Lang) {
-  const pl = (EX.crisps.plant ?? 0) / (EX.crisps.prot || 1);
   return {
-    rows: F.rows, lz: F.leadingZero,
-    fp: fmtPct(F.fill.protein, lang, 0), fi: fmtPct(F.fill.ingredients, lang, 0),
-    measured: F.funnel.measured, inh: F.routes.inherited, rev: F.review.length,
-    bad: fmtNum(PER_PACK.p.prot_declared_bad ?? 0, lang, 1), good: fmtNum(PER_PACK.p.prot ?? 0, lang, 1),
-    pl: fmtPct(pl, lang, 0), ratio: fmtPct(F.ptRatio, lang, 1),
+    measured: F.funnel.measured, rev: REVIEW.length,
+    pl: fmtPct(F.crispsPlant, lang, 0), ratio: fmtPct(F.ptRatio, lang, 1),
   };
 }
+type Side = "left" | "right" | "below" | "above";
 
 interface Props { index: number; lang: Lang; onNext: () => void; onBack: () => void }
 
@@ -30,7 +27,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
   const tipRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
   const [mobile, setMobile] = useState(false);
-  const [pt, setPt] = useState<{ x: number; y: number; side: "left" | "right" | "below" } | null>(null);
+  const [pt, setPt] = useState<{ x: number; y: number; side: Side } | null>(null);
   const [tipH, setTipH] = useState(220);
 
   // fit the 1240×760 canvas into the available space
@@ -63,8 +60,9 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
     // the hotspot sits on the edge of the target that faces the tooltip,
     // so the tooltip never hides what it describes
     const roomRight = l + w + GAP + TIP_W < W - 12;
-    const side = stop.side ?? (w >= 300 ? (cx > W * 0.55 ? "left" : "right") : roomRight ? "right" : "left");
+    const side: Side = stop.side ?? (w >= 300 ? (cx > W * 0.55 ? "left" : "right") : roomRight ? "right" : "left");
     if (side === "below") setPt({ x: cx, y: t + h, side });
+    else if (side === "above") setPt({ x: cx, y: t, side });
     else if (side === "right") setPt({ x: l + w, y, side });
     else setPt({ x: l, y, side });
   }, [stop.anchor, stop.side, scale]);
@@ -84,10 +82,11 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
   const last = index === STOPS.length - 1;
 
   // tooltip beside the hotspot: right if there is room, else left; clamped vertically
-  let tip = { left: 0, top: 0, arrowTop: 0, arrowLeft: 0, side: "right" as "right" | "left" | "below" };
-  if (pt?.side === "below") {
+  let tip = { left: 0, top: 0, arrowTop: 0, arrowLeft: 0, side: "right" as Side };
+  if (pt?.side === "below" || pt?.side === "above") {
     const left = Math.max(12, Math.min(W - TIP_W - 12, pt.x - TIP_W / 2));
-    tip = { left, top: pt.y + GAP, arrowTop: -6, arrowLeft: pt.x - left - 7, side: "below" };
+    const top = pt.side === "below" ? pt.y + GAP : pt.y - GAP - tipH;
+    tip = { left, top, arrowTop: 0, arrowLeft: pt.x - left - 7, side: pt.side };
   } else if (pt) {
     const right = pt.side === "right" && pt.x + GAP + TIP_W < W - 12;
     const left = right ? pt.x + GAP : Math.max(12, pt.x - GAP - TIP_W);
@@ -99,9 +98,12 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
     <div className={mobile ? "tip sheet-tip" : "tip"} ref={tipRef} key={`${index}-${lang}`}
       style={mobile ? undefined : { left: tip.left, top: tip.top, visibility: pt ? "visible" : "hidden" }}
       role="dialog" aria-live="polite" aria-label={title}>
-      {!mobile && pt && <span className="arrow" style={tip.side === "below" ? { top: -6, left: tip.arrowLeft } : { top: tip.arrowTop, [tip.side === "right" ? "left" : "right"]: -6 }} />}
+      {!mobile && pt && <span className="arrow" style={
+        tip.side === "below" ? { top: -6, left: tip.arrowLeft }
+        : tip.side === "above" ? { bottom: -6, left: tip.arrowLeft }
+        : { top: tip.arrowTop, [tip.side === "right" ? "left" : "right"]: -6 }} />}
       <div className="tmeta">
-        <span>{String(stop.step).padStart(2, "0")} · {STEPS[lang][stop.step - 1]}</span>
+        <span>{String(stop.chapter).padStart(2, "0")} · {CHAPTERS[lang][stop.chapter - 1]}</span>
         <span>{index + 1} / {STOPS.length}</span>
       </div>
       <h3>{title}</h3>
@@ -109,7 +111,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
       <div className="tact">
         <button className="tback" onClick={onBack} aria-label={S.back}>←</button>
         <span className="dotsbar" aria-hidden>
-          {Array.from({ length: 11 }, (_, i) => <i key={i} className={i < stop.step ? "on" : ""} />)}
+          {CHAPTERS[lang].map((_, i) => <i key={i} className={i < stop.chapter ? "on" : ""} />)}
         </span>
         <button className="tnext" onClick={onNext} autoFocus>{last ? S.finish : S.next} <span>→</span></button>
       </div>
@@ -131,18 +133,18 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                 <div className="wbody">
                   <aside className="side">
                     <div className="side-label">{U.workflow}</div>
-                    {STEPS[lang].map((s, i) => (
-                      <div key={s} className={`sstep ${i + 1 < stop.step ? "done" : i + 1 === stop.step ? "now" : ""}`}>
-                        <span className="c">{i + 1 < stop.step ? "✓" : i + 1}</span>{s}
+                    {CHAPTERS[lang].map((s, i) => (
+                      <div key={s} className={`sstep ${i + 1 < stop.chapter ? "done" : i + 1 === stop.chapter ? "now" : ""}`}>
+                        <span className="c">{i + 1 < stop.chapter ? "✓" : i + 1}</span>{s}
                       </div>
                     ))}
                     <div className="side-foot">{S.fictitious}</div>
                   </aside>
                   <main className="main">
-                    <div className="shead" key={`h-${stop.step}-${lang}`} style={{ animation: "fadein .5s both" }}>
-                      <div className="k">{fill(U.stepOf, { n: stop.step })}</div>
-                      <h2>{STEPS[lang][stop.step - 1]}</h2>
-                      <p>{U.sub[stop.step - 1]}</p>
+                    <div className="shead" key={`h-${stop.chapter}-${lang}`} style={{ animation: "fadein .5s both" }}>
+                      <div className="k">{fill(U.stepOf, { n: stop.chapter })}</div>
+                      <h2>{CHAPTERS[lang][stop.chapter - 1]}</h2>
+                      <p>{U.sub[stop.chapter - 1]}</p>
                     </div>
                     <div className="scene" key={`${stop.scene}-${lang}`}>
                       <SceneView scene={stop.scene} sub={stop.sub} anchor={stop.anchor} lang={lang} />

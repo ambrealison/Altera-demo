@@ -1,46 +1,36 @@
-// The guided tour: one stop per tooltip, in the order of the Altera AI method
-// ("How Altera AI works", Altera-agent repository, steps 1 to 11).
+// The guided tour. Five chapters that follow, in order, the eleven steps of
+// "How Altera AI works" (Altera-agent repository):
+//   1 Import    — steps 1 and 2 (receive, scope)
+//   2 Classify  — step 3
+//   3 Protein   — steps 4 and 5 (content, plant / animal split)
+//   4 Ratio     — steps 6 and 7 (volumes, calculation)
+//   5 Deliver   — steps 8 to 11 (checks, accuracy, delivery, what is kept)
 
-export type Scene =
-  | "import" | "scope" | "classify" | "protein" | "split" | "volumes"
-  | "results" | "checks" | "accuracy" | "deliver" | "refbase";
+export type Scene = "import" | "classify" | "protein" | "ratio" | "deliver";
 
 export interface Stop {
   /** Key into TIPS. */
   id: string;
-  /** Step of the method, 1 to 11. */
-  step: number;
+  /** Chapter, 1 to 5. */
+  chapter: number;
   scene: Scene;
   /** Sub-state of the scene: what is revealed so far. */
   sub: number;
   /** data-anchor of the element the hotspot points at. */
   anchor: string;
   /** Where the tooltip goes; by default beside the target, on the side with room. */
-  side?: "left" | "right" | "below";
+  side?: "left" | "right" | "below" | "above";
 }
 
 export const STOPS: Stop[] = [
-  { id: "file", step: 1, scene: "import", sub: 0, anchor: "file" },
-  { id: "csv", step: 1, scene: "import", sub: 1, anchor: "csv" },
-  { id: "fill", step: 1, scene: "import", sub: 2, anchor: "fill-protein" },
-  { id: "measured", step: 2, scene: "scope", sub: 0, anchor: "measured" },
-  { id: "codes", step: 2, scene: "scope", sub: 1, anchor: "codes" },
-  { id: "weights", step: 2, scene: "scope", sub: 2, anchor: "weights" },
-  { id: "inherited", step: 3, scene: "classify", sub: 0, anchor: "src-inherited" },
-  { id: "stratum", step: 3, scene: "classify", sub: 1, anchor: "src-stratum" },
-  { id: "model", step: 3, scene: "classify", sub: 2, anchor: "not-sent" },
-  { id: "review", step: 3, scene: "classify", sub: 3, anchor: "review" },
-  { id: "cascade", step: 4, scene: "protein", sub: 0, anchor: "src-declared" },
-  { id: "perpack", step: 4, scene: "protein", sub: 1, anchor: "perpack" },
-  { id: "origin", step: 5, scene: "split", sub: 0, anchor: "split-bar" },
-  { id: "levels", step: 5, scene: "split", sub: 1, anchor: "level-a" },
-  { id: "mass", step: 6, scene: "volumes", sub: 0, anchor: "mass" },
-  { id: "result", step: 7, scene: "results", sub: 0, anchor: "result" },
-  { id: "toggle", step: 7, scene: "results", sub: 1, anchor: "toggle" },
-  { id: "fail", step: 8, scene: "checks", sub: 0, anchor: "check-fail" },
-  { id: "pass", step: 8, scene: "checks", sub: 1, anchor: "checks-pass" },
-  { id: "sealed", step: 9, scene: "accuracy", sub: 0, anchor: "sealed", side: "below" },
-  { id: "workbook", step: 10, scene: "deliver", sub: 0, anchor: "workbook" },
-  { id: "scope", step: 10, scene: "deliver", sub: 1, anchor: "csv-file", side: "left" },
-  { id: "refbase", step: 11, scene: "refbase", sub: 0, anchor: "refbase", side: "below" },
+  { id: "import", chapter: 1, scene: "import", sub: 0, anchor: "file", side: "below" },
+  { id: "scope", chapter: 1, scene: "import", sub: 1, anchor: "scope", side: "above" },
+  { id: "classify", chapter: 2, scene: "classify", sub: 0, anchor: "buckets", side: "below" },
+  { id: "review", chapter: 2, scene: "classify", sub: 1, anchor: "review", side: "above" },
+  { id: "protein", chapter: 3, scene: "protein", sub: 0, anchor: "prot-value", side: "below" },
+  { id: "split", chapter: 3, scene: "protein", sub: 1, anchor: "split", side: "left" },
+  { id: "ratio", chapter: 4, scene: "ratio", sub: 0, anchor: "ring", side: "right" },
+  { id: "aisles", chapter: 4, scene: "ratio", sub: 1, anchor: "aisles", side: "left" },
+  { id: "excel", chapter: 5, scene: "deliver", sub: 0, anchor: "excel", side: "right" },
+  { id: "privacy", chapter: 5, scene: "deliver", sub: 1, anchor: "privacy", side: "left" },
 ];
