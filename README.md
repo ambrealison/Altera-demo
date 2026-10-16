@@ -1,13 +1,13 @@
 # Altera AI — interactive demo
 
 A guided product tour of Altera AI, in the style of Arcade or Navattic, written for
-retailers' CSR teams: a cover, two intro slides (the protein ratio; the two
-methodologies side by side), then the Altera AI app window with one hotspot and one
-tooltip per stop. Seven chapters follow, in order, the eleven steps of "How Altera AI
-works" (Altera-agent repository): data intake (steps 1–2), classification (3), protein
-content (4), plant / animal split (5), calculation (6–7), quality control (8–9),
-deliverables (10–11). The official vocabulary of each methodology is kept. English and
-French. The visitor can only move forward or back.
+retailers' CSR teams: a cover, two intro slides (the protein ratio; WWF and Protein
+Tracker side by side), then the Altera AI app window with one hotspot and one tooltip
+per stop. Seven steps, each named after what the tool does, follow in order the eleven
+steps of "How Altera AI works" (Altera-agent repository). The tour shows proportions,
+never figures. The closing page maps, across Europe, the retailers that publish or
+measure their protein split — from public sources, cited on the page — then links to
+the booking page. English and French; WWF always comes first.
 
 Design follows alterafood.org: Archivo and Inter, warm paper background, ink and
 lavender pills, the app shown in a peach frame.
@@ -27,7 +27,9 @@ real retailer or a measured accuracy.
 - `src/scenes.tsx` — the seven app screens.
 - `src/Frame.tsx` — the app window, the chapter sidebar, hotspot and tooltip placement.
 - `src/slides.tsx` — intro and closing slides.
-- `src/lib/i18n.ts` — every text, EN and FR. `src/lib/facts.ts` — every number shown.
+- `src/Movement.tsx`, `src/data/movement.ts` — the closing map and its sourced data.
+- `src/data/europe.json` — Natural Earth outlines, projected by `scripts/build_map.mjs`.
+- `src/lib/i18n.ts` — every text, EN and FR. `src/lib/facts.ts` — the proportions the tour draws.
 
 ## Develop
 

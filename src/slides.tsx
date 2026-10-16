@@ -1,6 +1,5 @@
 import type { Lang } from "./lib/types";
 import { STRINGS } from "./lib/i18n";
-import { BOOKING_URL, DOWNLOADS } from "./config";
 import { fmtNum } from "./lib/calc";
 import { F } from "./lib/facts";
 
@@ -35,7 +34,7 @@ function Peek({ lang }: { lang: Lang }) {
           <div className="peek-body">
             <div className="banner">
               <div>
-                <div className="tagrow"><b>Protein Tracker</b></div>
+                <div className="tagrow"><b>WWF</b><b>Protein Tracker</b></div>
                 <div className="h">{label}</div>
                 <div className="big">{fmtNum(F.ptRatio * 100, lang, 1)}<small>%</small></div>
               </div>
@@ -108,40 +107,17 @@ export function Methods({ lang, onNext }: P) {
       <p className="lead rise d2" style={{ maxWidth: "62ch" }}>{T.lead}</p>
       <div className="mtable rise d3">
         <div className="mhead" />
-        <div className="mhead" style={{ background: "var(--lav)" }}><b>{T.pt.name}</b></div>
         <div className="mhead" style={{ background: "var(--peach)" }}><b>{T.wwf.name}</b></div>
+        <div className="mhead" style={{ background: "var(--lav)" }}><b>{T.pt.name}</b></div>
         {rows.map((r) => (
           <div key={r} style={{ display: "contents" }}>
             <div className="mlabel">{T.rows[r]}</div>
-            <div className={`mcell ${r === "unit" ? "strong" : ""}`}>{T.pt[r]}</div>
             <div className={`mcell ${r === "unit" ? "strong" : ""}`}>{T.wwf[r]}</div>
+            <div className={`mcell ${r === "unit" ? "strong" : ""}`}>{T.pt[r]}</div>
           </div>
         ))}
       </div>
       <div className="actions rise d4"><button className="pill pill-dark" onClick={onNext} autoFocus>{T.go} <Arrow /></button></div>
-    </section>
-  );
-}
-
-export function End({ lang, onRestart }: { lang: Lang; onRestart: () => void }) {
-  const T = STRINGS[lang].end;
-  const S = STRINGS[lang];
-  return (
-    <section className="slide cover">
-      <p className="eyebrow rise">{T.eyebrow}</p>
-      <h1 className="display xl rise d1">{T.title}</h1>
-      <p className="lead rise d2">{T.lead}</p>
-      <div className="actions rise d3">
-        <a className="pill pill-lav" href={BOOKING_URL} target="_blank" rel="noopener" autoFocus>{S.cta} <Arrow /></a>
-        <button className="pill pill-ghost" onClick={onRestart}>{T.restart}</button>
-      </div>
-      <div className="end-note rise d4">
-        <p>{T.disclaimer}</p>
-        <span style={{ display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
-          <a className="textlink" href={DOWNLOADS.workbook} download>{T.sample}</a>
-          <span>{T.built}</span>
-        </span>
-      </div>
     </section>
   );
 }

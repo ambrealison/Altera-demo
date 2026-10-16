@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Lang } from "./lib/types";
-import { CHAPTERS, STRINGS } from "./lib/i18n";
+import { STEPS, STRINGS } from "./lib/i18n";
 import { BOOKING_URL } from "./config";
 import { STOPS } from "./tour";
 import { Tour } from "./Frame";
-import { Cover, End, Methods, Ratio } from "./slides";
+import { Cover, Methods, Ratio } from "./slides";
+import { Movement } from "./Movement";
 
 // The whole demo is one linear sequence: cover, two intro slides, the guided tour, the close.
 type Screen = { kind: "cover" | "ratio" | "methods" | "end" } | { kind: "tour"; i: number };
@@ -43,7 +44,7 @@ export default function App() {
     window.history.replaceState(null, "", u.toString());
     document.documentElement.lang = lang;
     document.title = screen.kind === "tour"
-      ? `Altera AI — ${CHAPTERS[lang][STOPS[screen.i].chapter - 1]}`
+      ? `Altera AI — ${STEPS[lang][STOPS[screen.i].chapter - 1]}`
       : `Altera AI — ${S.demo}`;
   }, [lang, screen, S.demo]);
 
@@ -86,7 +87,7 @@ export default function App() {
       {screen.kind === "ratio" && <Ratio key={`r-${lang}`} lang={lang} onNext={next} />}
       {screen.kind === "methods" && <Methods key={`m-${lang}`} lang={lang} onNext={next} />}
       {screen.kind === "tour" && <Tour index={screen.i} lang={lang} onNext={next} onBack={back} />}
-      {screen.kind === "end" && <End key={`e-${lang}`} lang={lang} onRestart={() => setI(0)} />}
+      {screen.kind === "end" && <Movement key={`e-${lang}`} lang={lang} onRestart={() => setI(0)} />}
     </div>
   );
 }

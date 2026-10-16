@@ -1,22 +1,11 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type { Lang } from "./lib/types";
-import { CHAPTERS, METHOD_STEPS, STRINGS, TIPS, UI_STR, fill } from "./lib/i18n";
-import { fmtNum, fmtPct } from "./lib/calc";
-import { F, PER_PACK, REVIEW, ROUTE_COUNT } from "./lib/facts";
+import { STEPS, STRINGS, TIPS, UI_STR, fill } from "./lib/i18n";
 import { STOPS, type Stop } from "./tour";
 import { SceneView } from "./scenes";
 
 const W = 1240, H = 760, TIP_W = 340, GAP = 26;
 
-function tipVars(lang: Lang) {
-  return {
-    fp: fmtPct(F.fill.protein, lang, 0), fi: fmtPct(F.fill.ingredients, lang, 0),
-    measured: F.funnel.measured, wwf: F.funnel.wwf,
-    inh: ROUTE_COUNT.inherited, str: ROUTE_COUNT.stratum, mod: ROUTE_COUNT.model, rev: REVIEW.length,
-    bad: fmtNum(PER_PACK.p.prot_declared_bad ?? 0, lang, 1), good: fmtNum(PER_PACK.p.prot ?? 0, lang, 1),
-    pl: fmtPct(F.crispsPlant, lang, 0), ratio: fmtPct(F.ptRatio, lang, 1), wwfp: fmtPct(F.wwfPlant, lang, 1),
-  };
-}
 type Side = "left" | "right" | "below" | "above";
 
 interface Props { index: number; lang: Lang; onNext: () => void; onBack: () => void }
@@ -81,7 +70,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
   }, [pt, index, lang]);
 
   const [title, body] = TIPS[lang][stop.id];
-  const text = fill(body, tipVars(lang));
+  const text = body;
   const last = index === STOPS.length - 1;
 
   // tooltip beside the hotspot: right if there is room, else left; clamped vertically
@@ -107,7 +96,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
         : tip.side === "above" ? { bottom: -6, left: tip.arrowLeft }
         : { top: tip.arrowTop, [tip.side === "right" ? "left" : "right"]: -6 }} />}
       <div className="tmeta">
-        <span>{String(stop.chapter).padStart(2, "0")} · {CHAPTERS[lang][stop.chapter - 1]}</span>
+        <span>{fill(U.stepN, { n: stop.chapter })} · {STEPS[lang][stop.chapter - 1]}</span>
         <span>{index + 1} / {STOPS.length}</span>
       </div>
       <h3>{title}</h3>
@@ -115,7 +104,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
       <div className="tact">
         <button className="tback" onClick={onBack} aria-label={S.back}>←</button>
         <span className="dotsbar" aria-hidden>
-          {CHAPTERS[lang].map((_, i) => <i key={i} className={i < stop.chapter ? "on" : ""} />)}
+          {STEPS[lang].map((_, i) => <i key={i} className={i < stop.chapter ? "on" : ""} />)}
         </span>
         <button className="tnext" onClick={onNext} autoFocus>{last ? S.finish : S.next} <span>→</span></button>
       </div>
@@ -137,7 +126,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                 <div className="wbody">
                   <aside className="side">
                     <div className="side-label">{U.workflow}</div>
-                    {CHAPTERS[lang].map((s, i) => (
+                    {STEPS[lang].map((s, i) => (
                       <div key={s} className={`sstep ${i + 1 < stop.chapter ? "done" : i + 1 === stop.chapter ? "now" : ""}`}>
                         <span className="c">{i + 1 < stop.chapter ? "✓" : i + 1}</span>{s}
                       </div>
@@ -146,8 +135,8 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                   </aside>
                   <main className="main">
                     <div className="shead" key={`h-${stop.chapter}-${lang}`} style={{ animation: "fadein .5s both" }}>
-                      <div className="k">{fill(U.chapterOf, { n: stop.chapter })}<span className="kstep">{fill(METHOD_STEPS[stop.chapter - 1].includes("–") ? U.methodSteps : U.methodStep, { s: METHOD_STEPS[stop.chapter - 1] })}</span></div>
-                      <h2>{CHAPTERS[lang][stop.chapter - 1]}</h2>
+                      <div className="k">{fill(U.stepN, { n: stop.chapter })}<span className="kstep">Altera AI</span></div>
+                      <h2>{STEPS[lang][stop.chapter - 1]}</h2>
                       <p>{U.sub[stop.chapter - 1]}</p>
                     </div>
                     <div className="scene" key={`${stop.scene}-${lang}`}>
