@@ -113,9 +113,9 @@ function Intake(p: P) {
       <Card title={U.scopeTitle} className={cx(p.sub < 1 && "dim", on(p, "scope"))} anchor="scope">
         <div className="wf">
           <div className="wf-row"><span>{U.received}</span><div className="wf-bar"><i style={{ width: g ? "100%" : 0, background: "var(--ink)" }} /></div></div>
-          {[U.nonFood, U.tests, U.unsold].map((k) => <div className="wf-cut" key={k}><span>− {k}</span></div>)}
+          {[U.nonFood, U.tests, U.unsold].map((k) => <div className="wf-cut" key={k}><span>× {k}</span></div>)}
           <div className="wf-row"><span>{U.ptScope}</span><div className="wf-bar"><i style={{ width: g ? `${(100 * F.funnel.measured) / N}%` : 0, background: "var(--green)" }} /></div></div>
-          <div className="wf-cut"><span>− {U.appendixA}</span></div>
+          <div className="wf-cut"><span>× {U.appendixA}</span></div>
           <div className="excl">{Object.values(U.excl).map((e) => <span key={e}>{e}</span>)}</div>
           <div className="wf-row"><span>{U.wwfScope}</span><div className="wf-bar"><i style={{ width: g ? `${(100 * F.funnel.wwf) / N}%` : 0, background: "var(--comp)" }} /></div></div>
         </div>
