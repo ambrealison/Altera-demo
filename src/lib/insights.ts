@@ -1,104 +1,163 @@
-// What the insights report says about Harbour Market, computed from the fictitious catalogue.
-// The figures match the sample workbook: WWF in tonnes of product (dairy equivalents),
-// Protein Tracker in tonnes of protein.
-import { FOOD_GROUPS, PRODUCTS, PT_CLASSES, inScope, massKg } from "./calc";
-import { PT, WWF } from "./facts";
-import type { Product, ProtSrc, PtClass } from "./types";
+// What the sample insights report says about Harbour Market, computed from the fictitious
+// catalogue. The figures match the sample workbook: WWF in tonnes of product (dairy
+// equivalents), Protein Tracker in tonnes of protein.
+import { FOOD_GROUPS, PRODUCTS, PT_CLASSES, inScope } from "./calc";
+import type { Product, PtClass } from "./types";
 
-const kg = (p: Product) => massKg(p, {});
+const kg = (p: Product, f = 1) => (p.units ?? 0) * p.weight * f;
 const protKg = (p: Product) => (kg(p) * (p.prot ?? 0)) / 100;
 const plantKg = (p: Product) => (kg(p) * (p.plant ?? 0)) / 100;
 const animalKg = (p: Product) => (kg(p) * (p.animal ?? 0)) / 100;
 const sum = (xs: Product[], f: (p: Product) => number) => xs.reduce((a, p) => a + f(p), 0);
+const OWN = (p: Product) => !!p.own || p.brand === "Harbour Market";
 
-// ------------------------------------------------------------ WWF, whole products in dairy equivalents
-const g = WWF.byGroup;
-const plantOf = (keys: readonly string[]) => keys.reduce((a, k) => a + g[k].plant, 0);
-const totalOf = (keys: readonly string[]) => keys.reduce((a, k) => a + g[k].total, 0);
-export const WWF_KPI = {
-  fg1: g.FG1.plant / g.FG1.total,
-  fg2: g.FG2.plant / g.FG2.total,
-  diet: plantOf(FOOD_GROUPS) / totalOf(FOOD_GROUPS),
-  /** Planetary Health Diet proportions, as printed in Appendix D. */
-  phd: { fg1: 0.6, diet: 0.74 },
-};
-export const WWF_GROUPS = FOOD_GROUPS.map((k) => ({ fg: k, plant: g[k].plant, animal: g[k].animal, total: g[k].total }));
+// ------------------------------------------------------------ the three ratios, for any set of volumes
+/** WWF FG1 and whole-diet plant shares (dairy equivalents) and the Protein Tracker ratio. */
+export function ratiosWith(factor: (p: Product) => number = () => 1) {
+  const g: Record<string, { plant: number; total: number }> = {};
+  for (const k of FOOD_GROUPS) g[k] = { plant: 0, total: 0 };
+  let pl = 0, pr = 0;
+  for (const p of inScope) {
+    const m = kg(p, factor(p));
+    pr += (m * (p.prot ?? 0)) / 100;
+    pl += (m * (p.plant ?? 0)) / 100;
+    if (!p.wwf_in || p.wwf.struct !== "whole" || !g[p.wwf.fg ?? ""]) continue;
+    const t = (p.wwf.fg === "FG2" ? m * (p.dairy ?? 1) : m) / 1000;
+    g[p.wwf.fg!].total += t;
+    if (p.wwf.src === "plant") g[p.wwf.fg!].plant += t;
+  }
+  const all = FOOD_GROUPS.reduce((a, k) => ({ plant: a.plant + g[k].plant, total: a.total + g[k].total }), { plant: 0, total: 0 });
+  return { fg1: g.FG1.plant / g.FG1.total, diet: all.plant / all.total, pt: pl / pr };
+}
+export const RATIOS = ratiosWith();
+/** Planetary Health Diet proportions, as printed in Appendix D. */
+export const PHD = { fg1: 0.6, diet: 0.74 };
+/** Dutch supermarkets' average plant share of protein, 2025 (The Protein Tracker, March 2026). */
+export const NL_AVERAGE = 0.426;
 
-// ------------------------------------------------------------ Protein Tracker
-export const PT_KPI = {
-  ratio: PT.ratio,
-  totalT: PT.total / 1000,
-  levelA: PT.levelA / PT.total,
-  classes: PT_CLASSES.map((c: PtClass) => ({ cls: c, share: PT.byClass[c] / PT.total })),
-};
+const PT_TOTAL = sum(inScope, protKg);
+const PT_ANIMAL = sum(inScope, animalKg);
 
-export const DEPT_ROWS = PT.byDept.map((d) => ({
-  dept: d.dept, plantT: d.plant / 1000, animalT: d.animal / 1000, totalT: d.total / 1000,
-  share: d.total / PT.total, animalShare: d.animal / PT.animal, ratio: d.ratio,
-}));
-
-const byAnimal = [...DEPT_ROWS].sort((a, b) => b.animalT - a.animalT);
-const top3 = byAnimal.slice(0, 3);
-const own = inScope.filter((p) => p.own || p.brand === "Harbour Market");
-const others = inScope.filter((p) => !(p.own || p.brand === "Harbour Market"));
-const plantDept = [...DEPT_ROWS].filter((d) => d.ratio > 0.9).sort((a, b) => b.totalT - a.totalT)[0];
-
-export const FINDINGS = {
-  biggest: DEPT_ROWS[0],
-  top3: { depts: top3.map((d) => d.dept), share: top3.reduce((a, d) => a + d.animalShare, 0) },
-  own: {
-    share: sum(own, protKg) / PT.total,
-    ratio: sum(own, plantKg) / sum(own, protKg),
-    brands: sum(others, plantKg) / sum(others, protKg),
-  },
-  plantEngine: plantDept,
+// ------------------------------------------------------------ scope
+export const SCOPE = {
+  received: PRODUCTS.length,
+  measured: inScope.length,
+  massT: sum(inScope, (p) => kg(p)) / 1000,
+  protT: PT_TOTAL / 1000,
+  declared: sum(inScope.filter((p) => p.prot_src === "declared"), protKg) / PT_TOTAL,
+  levelA: sum(inScope.filter((p) => p.level === "A"), protKg) / PT_TOTAL,
 };
 
-// families that carry the most animal protein
-const fam = new Map<string, number>();
-for (const p of inScope) fam.set(p.family, (fam.get(p.family) ?? 0) + animalKg(p));
-export const ANIMAL_FAMILIES = [...fam].sort((a, b) => b[1] - a[1]).slice(0, 5)
-  .map(([family, a]) => ({ family, animalT: a / 1000, share: a / PT.animal }));
+// ------------------------------------------------------------ the GPA detail of each class
+export type Detail =
+  | "red_meat" | "poultry" | "fish" | "eggs" | "cheese" | "milk" | "processed" | "animal_other"
+  | "refined" | "whole_grain" | "fruit_veg" | "starchy" | "discretionary" | "outside_wwf" | "plant_other"
+  | "pulses" | "nuts" | "seeds" | "meat_alt" | "tofu" | "dairy_alt"
+  | "comp_meat" | "comp_fish" | "comp_veggie" | "comp_vegan" | "comp_other";
 
-// where the protein values come from, weighted by protein sold
-const SRC: ProtSrc[] = ["declared", "reference_base", "off_ean", "name_match", "stratum_median"];
-export const PROT_SOURCES = SRC.map((s) => ({ src: s, share: sum(inScope.filter((p) => p.prot_src === s), protKg) / PT.total }));
-
-// ------------------------------------------------------------ levers, each computed product by product
-interface Shift { plant: number; animal: number }
-function ptAfter(d: Shift) {
-  return (PT.plant + d.plant) / (PT.total + d.plant + d.animal);
+const PROCESSED = new Set(["Cooked Meats", "Cured Meats", "Pâté", "Sausages & Burgers"]);
+/** The GPA sub-category of a product within its Protein Tracker class (same rule as the workbook). */
+export function detail(p: Product): Detail {
+  const w = p.wwf, fg = w.fg, sub = w.sub ?? "";
+  switch (p.pt) {
+    case "animal_core":
+      if (!p.wwf_in) return "animal_other";
+      if (PROCESSED.has(p.family)) return "processed";
+      if (fg === "FG1") return ({ red_meat: "red_meat", poultry: "poultry", fish_shellfish: "fish", eggs: "eggs" } as Record<string, Detail>)[sub] ?? "animal_other";
+      if (/Cheese/.test(p.family)) return "cheese";
+      if (["Milk", "Milk Drinks", "Yoghurt"].includes(p.family)) return "milk";
+      return "animal_other";
+    case "composite":
+      if (w.struct === "composite") return ({ meat_based: "comp_meat", seafood_based: "comp_fish", vegetarian: "comp_veggie", vegan: "comp_vegan" } as Record<string, Detail>)[w.cat ?? ""] ?? "comp_other";
+      return "comp_other";
+    case "plant_non_core":
+      if (!p.wwf_in) return "outside_wwf";
+      if (fg === "FG5") return sub === "whole_grain" ? "whole_grain" : "refined";
+      return ({ FG4: "fruit_veg", FG6: "starchy", FG7: "discretionary" } as Record<string, Detail>)[fg ?? ""] ?? "plant_other";
+    default:
+      return ({ pulses: "pulses", nuts: "nuts", seeds: "seeds", alternative_products: "meat_alt", tofu_tempeh_seitan: "tofu", dairy_alternatives: "dairy_alt" } as Record<string, Detail>)[sub] ?? "plant_other";
+  }
 }
 
-// 1 · move 10% of red meat to plant-based mince, at the protein content of the meat alternatives sold
-const redMeat = inScope.filter((p) => p.wwf_in && p.wwf.struct === "whole" && p.wwf.sub === "red_meat");
-const alt = inScope.filter((p) => p.family === "Meat Alternatives");
-const altProt = sum(alt, protKg) / sum(alt, kg);
-const rmMass = sum(redMeat, kg) * 0.1;
-const l1 = {
-  pt: ptAfter({ plant: rmMass * altProt - sum(redMeat, plantKg) * 0.1, animal: -sum(redMeat, animalKg) * 0.1 }),
-  wwfFg1: (g.FG1.plant + rmMass / 1000) / g.FG1.total,
+const byDetail = new Map<Detail, number>();
+for (const p of inScope) byDetail.set(detail(p), (byDetail.get(detail(p)) ?? 0) + protKg(p));
+const rows = (keys: Detail[]) => keys.map((k) => ({ key: k, t: (byDetail.get(k) ?? 0) / 1000, share: (byDetail.get(k) ?? 0) / PT_TOTAL }))
+  .sort((a, b) => b.t - a.t);
+
+export const CLASSES = PT_CLASSES.map((c: PtClass) => {
+  const t = sum(inScope.filter((p) => p.pt === c), protKg);
+  return { cls: c, t: t / 1000, share: t / PT_TOTAL };
+}).sort((a, b) => b.share - a.share);
+
+export const ANIMAL_DETAIL = rows(["red_meat", "poultry", "cheese", "milk", "fish", "processed", "eggs", "animal_other"]);
+const PLANT_ALL = rows(["refined", "fruit_veg", "pulses", "whole_grain", "nuts", "discretionary", "dairy_alt", "meat_alt", "starchy", "outside_wwf", "tofu", "seeds", "plant_other"]);
+export const PLANT_DETAIL = { top: PLANT_ALL.slice(0, 7), restT: PLANT_ALL.slice(7).reduce((a, r) => a + r.t, 0), restShare: PLANT_ALL.slice(7).reduce((a, r) => a + r.share, 0) };
+export const REFINED_POINTS = sum(inScope.filter((p) => detail(p) === "refined"), plantKg) / PT_TOTAL;
+
+// ------------------------------------------------------------ where to act: departments and families
+const animalBy = (key: (p: Product) => string) => {
+  const m = new Map<string, number>();
+  for (const p of inScope) m.set(key(p), (m.get(key(p)) ?? 0) + animalKg(p));
+  return [...m].filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+};
+const countTo = (xs: [string, number][], share: number) => {
+  let c = 0;
+  for (let i = 0; i < xs.length; i++) { c += xs[i][1]; if (c / PT_ANIMAL >= share) return { n: i + 1, share: c / PT_ANIMAL }; }
+  return { n: xs.length, share: 1 };
+};
+const deptAnimal = animalBy((p) => p.dept);
+const famAnimal = animalBy((p) => p.family);
+export const DEPTS_ANIMAL = {
+  animalT: PT_ANIMAL / 1000,
+  rows: deptAnimal.slice(0, 10).map(([dept, a]) => ({ dept, t: a / 1000, share: a / PT_ANIMAL })),
+  lead: countTo(deptAnimal, 0.75),
+  families: { ...countTo(famAnimal, 2 / 3), of: famAnimal.length },
+  dairy: (deptAnimal.filter(([d]) => d === "Dairy & Eggs" || d === "Cheese").reduce((a, [, v]) => a + v, 0)) / PT_ANIMAL,
 };
 
-// 2 · grow pulses, nuts and seeds by a quarter
-const pulses = inScope.filter((p) => p.wwf_in && p.wwf.fg === "FG1" && ["pulses", "nuts", "seeds"].includes(p.wwf.sub ?? ""));
-const pMass = sum(pulses, kg) * 0.25;
-const l2 = {
-  pt: ptAfter({ plant: sum(pulses, plantKg) * 0.25, animal: sum(pulses, animalKg) * 0.25 }),
-  wwfFg1: (g.FG1.plant + pMass / 1000) / (g.FG1.total + pMass / 1000),
+// ------------------------------------------------------------ where to act: own label
+const brandMap = new Map<string, { t: number; plant: number }>();
+for (const p of inScope) {
+  const b = brandMap.get(p.brand) ?? { t: 0, plant: 0 };
+  b.t += protKg(p); b.plant += plantKg(p);
+  brandMap.set(p.brand, b);
+}
+const own = inScope.filter(OWN), others = inScope.filter((p) => !OWN(p));
+export const BRANDS = {
+  ownShare: sum(own, protKg) / PT_TOTAL,
+  ownRatio: sum(own, plantKg) / sum(own, protKg),
+  othersShare: sum(others, protKg) / PT_TOTAL,
+  othersRatio: sum(others, plantKg) / sum(others, protKg),
+  nationalCount: new Set(others.map((p) => p.brand)).size,
+  ownProducts: own.length,
+  rows: [...brandMap].sort((a, b) => b[1].t - a[1].t).slice(0, 6)
+    .map(([brand, v]) => ({ brand, own: brand === "Harbour Market", t: v.t / 1000, ratio: v.plant / v.t })),
 };
 
-// 3 · swap 15% of cow's milk for soya drink
-const milk = inScope.filter((p) => p.family === "Milk");
-const soya = PRODUCTS.find((p) => /soya drink/i.test(p.name))!;
-const mMass = sum(milk, kg) * 0.15;
-const l3 = {
-  pt: ptAfter({ plant: (mMass * (soya.prot ?? 0)) / 100, animal: -sum(milk, animalKg) * 0.15 }),
-  wwfFg2: (g.FG2.plant + mMass / 1000) / g.FG2.total,
+// ------------------------------------------------------------ composites
+const comp = inScope.filter((p) => p.pt === "composite");
+const compT = sum(comp, protKg);
+const wwfComp = inScope.filter((p) => p.wwf_in && p.wwf.struct === "composite");
+const wwfCompMass = sum(wwfComp, (p) => kg(p));
+export const COMPOSITES = {
+  t: compT / 1000,
+  share: compT / PT_TOTAL,
+  convention: sum(comp.filter((p) => p.split_src === "convention"), protKg) / compT,
+  massShare: wwfCompMass / sum(inScope.filter((p) => p.wwf_in), (p) => kg(p)),
+  mix: ["meat_based", "vegetarian", "seafood_based", "vegan"].map((c) => ({
+    cat: c, share: sum(wwfComp.filter((p) => p.wwf.cat === c), (p) => kg(p)) / wwfCompMass,
+  })),
 };
 
-export const LEVERS = [
-  { id: "meat", wwfKey: "FG1" as const, wwf: l1.wwfFg1 - WWF_KPI.fg1, pt: l1.pt - PT.ratio },
-  { id: "pulses", wwfKey: "FG1" as const, wwf: l2.wwfFg1 - WWF_KPI.fg1, pt: l2.pt - PT.ratio },
-  { id: "milk", wwfKey: "FG2" as const, wwf: l3.wwfFg2 - WWF_KPI.fg2, pt: l3.pt - PT.ratio },
-];
+// ------------------------------------------------------------ what is still missing: loose produce
+const loose = inScope.filter((p) => p.weight_src === "variable");
+const looseIds = new Set(loose.map((p) => p.id));
+export const LOOSE = {
+  products: loose.length,
+  instore: PRODUCTS.filter((p) => p.code_kind === "instore").length,
+  badCodes: PRODUCTS.filter((p) => p.code_kind === "bad_check").length,
+  labelWeights: PRODUCTS.filter((p) => p.weight_src === "label").length,
+  massT: sum(loose, (p) => kg(p)) / 1000,
+  /** If half of the loose sales were missing from the file, the full figure would count them twice as much. */
+  after: ratiosWith((p) => (looseIds.has(p.id) ? 2 : 1)),
+};

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { Lang, Profile } from "./lib/types";
+import type { Lang } from "./lib/types";
 import { STRINGS, fill } from "./lib/i18n";
 import { fmtNum } from "./lib/calc";
 import { F } from "./lib/facts";
@@ -7,51 +7,22 @@ import { DOWNLOADS } from "./config";
 import { COUNT } from "./data/movement";
 import { MiniMap } from "./Movement";
 import { Gloss } from "./Gloss";
-import { REPORT_PAGES, REPORT_TITLES, ReportPages } from "./report/Report";
+import { PAGE_H, PAGE_W, REPORT_PAGES, REPORT_TITLES, ReportPages } from "./report/Report";
 
 interface P { lang: Lang; onNext: () => void }
 const Arrow = () => <span className="arr">→</span>;
-const pctTxt = (v: number, lang: Lang, d = 1) => `${fmtNum(v * 100, lang, d)}${lang === "fr" ? " %" : "%"}`;
 
-/** A number that eases towards its target, for figures that react to the visitor. */
-function useTween(target: number, ms = 650) {
-  const [v, setV] = useState(target);
-  const from = useRef(target);
-  useEffect(() => {
-    const start = performance.now(), a = from.current;
-    let raf = 0;
-    const step = (now: number) => {
-      const k = Math.min(1, (now - start) / ms);
-      const e = 1 - Math.pow(1 - k, 3);
-      const x = a + (target - a) * e;
-      setV(x);
-      from.current = x;
-      if (k < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [target, ms]);
-  return v;
-}
-
-// ------------------------------------------------------------ cover: who is watching
-export function Cover({ lang, onStart, onQuick }: { lang: Lang; onStart: (p: Profile) => void; onQuick: () => void }) {
+// ------------------------------------------------------------ cover
+export function Cover({ lang, onNext }: P) {
   const T = STRINGS[lang].cover;
   return (
     <section className="slide cover">
       <p className="eyebrow rise">{T.eyebrow}</p>
       <h1 className="display xl rise d1">{T.title}</h1>
       <p className="lead rise d2">{T.lead}</p>
-      <div className="who rise d3">
-        <span className="who-label">{T.who}</span>
-        <div className="actions">
-          <button className="pill pill-dark" onClick={() => onStart("retailer")} autoFocus>{T.retailer} <Arrow /></button>
-          <button className="pill pill-ghost" onClick={() => onStart("ngo")}>{T.ngo} <Arrow /></button>
-        </div>
-        <div className="cover-meta">
-          <span className="meta">{T.meta}</span>
-          <button className="quicklink" onClick={onQuick}><span className="tri" aria-hidden />{T.quick}</button>
-        </div>
+      <div className="actions rise d3">
+        <button className="pill pill-dark" onClick={onNext} autoFocus>{T.start} <Arrow /></button>
+        <span className="meta">{T.meta}</span>
       </div>
       <Peek lang={lang} />
     </section>
@@ -87,7 +58,7 @@ function Peek({ lang }: { lang: Lang }) {
 }
 
 // ------------------------------------------------------------ why now: the movement, in short
-export function Why({ lang, profile, onNext }: P & { profile: Profile }) {
+export function Why({ lang, onNext }: P) {
   const T = STRINGS[lang].why;
   const K = STRINGS[lang].end.kpis;
   const S = STRINGS[lang];
@@ -97,9 +68,9 @@ export function Why({ lang, profile, onNext }: P & { profile: Profile }) {
         <div>
           <p className="eyebrow rise">{T.eyebrow}</p>
           <h1 className="display lg rise d1">{T.title}</h1>
-          <p className="lead rise d2">{T.lead[profile]}</p>
+          <p className="lead rise d2">{T.lead}</p>
           <ol className="why-points rise d3">
-            {T.points[profile].map(([h, d], i) => (
+            {T.points.map(([h, d], i) => (
               <li key={h}><span className="wn">{i + 1}</span><div><b>{h}</b><span>{fill(d, { n: COUNT.publishes })}</span></div></li>
             ))}
           </ol>
@@ -114,122 +85,6 @@ export function Why({ lang, profile, onNext }: P & { profile: Profile }) {
           <MiniMap label={T.title} />
           <figcaption>{T.mapNote}</figcaption>
         </figure>
-      </div>
-    </section>
-  );
-}
-
-// ------------------------------------------------------------ the ratio, with levers to try
-type LeverId = "mince" | "milk" | "lentils";
-type NameId = keyof (typeof STRINGS)["en"]["ratio"]["names"];
-interface Item { id: string; name: NameId; mass: number; prot: number; plantF: number; fg: "FG1" | "FG2" | null; dairy: number; lever?: LeverId }
-const LEVERS: LeverId[] = ["mince", "milk", "lentils"];
-
-/** An illustrative basket, in kg of product sold; protein in g per 100 g. */
-function basket(on: Set<LeverId>): Item[] {
-  return [
-    on.has("mince")
-      ? { id: "beef", name: "mince", mass: 500, prot: 18, plantF: 1, fg: "FG1", dairy: 1, lever: "mince" }
-      : { id: "beef", name: "beef", mass: 500, prot: 20, plantF: 0, fg: "FG1", dairy: 1 },
-    on.has("milk")
-      ? { id: "milk", name: "soya", mass: 2000, prot: 3.3, plantF: 1, fg: "FG2", dairy: 1, lever: "milk" }
-      : { id: "milk", name: "milk", mass: 2000, prot: 3.4, plantF: 0, fg: "FG2", dairy: 1 },
-    { id: "cheddar", name: "cheddar", mass: 240, prot: 25, plantF: 0, fg: "FG2", dairy: 10 },
-    { id: "bread", name: "bread", mass: 500, prot: 9, plantF: 1, fg: null, dairy: 1 },
-    { id: "lentils", name: "lentils", mass: on.has("lentils") ? 500 : 250, prot: 24, plantF: 1, fg: "FG1", dairy: 1, lever: on.has("lentils") ? "lentils" : undefined },
-    { id: "pizza", name: "pizza", mass: 200, prot: 10, plantF: 0.5, fg: null, dairy: 1 },
-  ];
-}
-function ratios(items: Item[]) {
-  let pl = 0, pr = 0, wp = 0, wt = 0;
-  for (const it of items) {
-    const k = (it.mass * it.prot) / 100;
-    pr += k; pl += k * it.plantF;
-    if (it.fg) { const t = it.mass * it.dairy; wt += t; wp += t * it.plantF; }
-  }
-  return { pt: pl / pr, wwf: wp / wt };
-}
-const BASE = ratios(basket(new Set()));
-const MAX_KG = 120;
-
-export function Ratio({ lang, onNext, auto }: P & { auto: boolean }) {
-  const T = STRINGS[lang].ratio;
-  const S = STRINGS[lang];
-  const [on, setOn] = useState<Set<LeverId>>(new Set());
-  const items = basket(on);
-  const r = ratios(items);
-  const wwf = useTween(r.wwf), pt = useTween(r.pt);
-
-  // while the demo plays by itself, try each lever in turn
-  useEffect(() => {
-    if (!auto) return;
-    const plan: [number, LeverId[]][] = [[2200, ["mince"]], [5200, ["milk"]], [8200, ["lentils"]]];
-    const ids = plan.map(([t, l]) => window.setTimeout(() => setOn(new Set(l)), t));
-    return () => ids.forEach(clearTimeout);
-  }, [auto]);
-
-  const toggle = (l: LeverId) => setOn((s) => { const n = new Set(s); if (n.has(l)) n.delete(l); else n.add(l); return n; });
-  const delta = (v: number, b: number) => {
-    const d = (v - b) * 100;
-    return Math.abs(d) < 0.05 ? null : `${d > 0 ? "+" : ""}${fmtNum(d, lang, 1)} pts`;
-  };
-  const dW = delta(r.wwf, BASE.wwf), dP = delta(r.pt, BASE.pt);
-
-  return (
-    <section className="slide">
-      <div className="intro-grid">
-        <div>
-          <p className="eyebrow rise">{T.eyebrow}</p>
-          <h1 className="display lg rise d1">{T.title}</h1>
-          <p className="lead rise d2">{T.lead}</p>
-          <div className="levers rise d3">
-            <div className="levers-head"><b>{T.tryLever}</b>{on.size > 0 && <button className="reset" onClick={() => setOn(new Set())}>{T.reset}</button>}</div>
-            <div className="lever-row">
-              {LEVERS.map((l) => (
-                <button key={l} className="lever" aria-pressed={on.has(l)} onClick={() => toggle(l)}>
-                  <span className="lv-box" aria-hidden />{T.levers[l]}
-                </button>
-              ))}
-            </div>
-            <p className={`lesson ${on.size ? "on" : ""}`}>{on.size ? T.lesson : T.hint}</p>
-          </div>
-          <div className="actions rise d4"><button className="pill pill-dark" onClick={onNext} autoFocus>{S.next} <Arrow /></button></div>
-        </div>
-        <div className="basket rise d2">
-          <div className="tiles">
-            <div className="tile wwf">
-              <span className="tl">{T.wwfTile}</span>
-              <b>{pctTxt(wwf, lang)}</b>
-              <span className="tn">{T.wwfNote}</span>
-              <span className={`td ${dW ? "on" : ""}`}>{dW ?? " "}</span>
-            </div>
-            <div className="tile pt">
-              <span className="tl">{T.ptTile}</span>
-              <b>{pctTxt(pt, lang)}</b>
-              <span className="tn">{T.ptNote}</span>
-              <span className={`td ${dP ? "on" : ""}`}>{dP ?? " "}</span>
-            </div>
-          </div>
-          <div className="basket-items">
-            {items.map((it, i) => {
-              const k = (it.mass * it.prot) / 100;
-              return (
-                <div className={`bitem rise ${it.lever ? "swapped" : ""}`} key={it.id} style={{ animationDelay: `${0.35 + i * 0.06}s` }}>
-                  <span className="bn">{T.names[it.name]}</span>
-                  <span className="bbar">
-                    <i style={{ width: `${(100 * k * it.plantF) / MAX_KG}%`, background: "var(--plant)" }} />
-                    <i style={{ width: `${(100 * k * (1 - it.plantF)) / MAX_KG}%`, background: "var(--animal)" }} />
-                  </span>
-                  <span className="bk">{Math.round(k)}</span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="bfoot">
-            <span className="legend" style={{ margin: 0 }}><span><i style={{ background: "var(--plant)" }} />{T.plant}</span><span><i style={{ background: "var(--animal)" }} />{T.animal}</span></span>
-            <span className="fmeta">{T.kg}</span>
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -252,11 +107,12 @@ export function Receive({ lang, onNext }: P) {
     return () => ro.disconnect();
   }, []);
 
-  const big = Math.max(0, (w - 16) * 0.675) / 794;
-  const small = Math.max(0, (w - 16) * 0.325) / 794;
+  // the cover across the full width, two inside pages under it
+  const big = w / PAGE_W;
+  const small = Math.max(0, (w - 16) / 2) / PAGE_W;
   const thumb = (n: number, s: number) => (
     <button className="rthumb" key={n} onClick={() => setOpen(n)} aria-label={fill(T.open, { n })}
-      style={{ width: 794 * s, height: 1123 * s }}>
+      style={{ width: PAGE_W * s, height: PAGE_H * s }}>
       <span className={`rscale show-${n}`} style={{ transform: `scale(${s})` }}><ReportPages lang={lang} /></span>
       <span className="rcap">{n} · {REPORT_TITLES[lang][n - 1]}</span>
     </button>
@@ -277,7 +133,7 @@ export function Receive({ lang, onNext }: P) {
         </div>
         <div className="rthumbs rise d2" ref={boxRef}>
           {w > 0 && thumb(1, big)}
-          {w > 0 && <div className="rstack">{thumb(2, small)}{thumb(3, small)}</div>}
+          {w > 0 && <div className="rstack">{thumb(3, small)}{thumb(6, small)}</div>}
         </div>
       </div>
       {open !== null && <Lightbox lang={lang} page={open} onPage={setOpen} onClose={() => setOpen(null)} />}
@@ -289,7 +145,7 @@ function Lightbox({ lang, page, onPage, onClose }: { lang: Lang; page: number; o
   const T = STRINGS[lang].receive;
   const [s, setS] = useState(0.6);
   useLayoutEffect(() => {
-    const fit = () => setS(Math.min((window.innerHeight - 110) / 1123, (window.innerWidth - 40) / 794, 1));
+    const fit = () => setS(Math.min((window.innerHeight - 110) / PAGE_H, (window.innerWidth - 40) / PAGE_W, 1));
     fit();
     window.addEventListener("resize", fit);
     return () => window.removeEventListener("resize", fit);
@@ -315,7 +171,7 @@ function Lightbox({ lang, page, onPage, onClose }: { lang: Lang; page: number; o
         <button className="lb-btn" onClick={() => onPage(Math.min(REPORT_PAGES, page + 1))} disabled={page === REPORT_PAGES} aria-label={T.nextPage}>→</button>
         <button className="lb-btn close" onClick={onClose} autoFocus>{T.close}</button>
       </div>
-      <div className="lb-stage" style={{ width: 794 * s, height: 1123 * s }} onClick={(e) => e.stopPropagation()}>
+      <div className="lb-stage" style={{ width: PAGE_W * s, height: PAGE_H * s }} onClick={(e) => e.stopPropagation()}>
         <span className={`rscale show-${page}`} style={{ transform: `scale(${s})` }}><ReportPages lang={lang} /></span>
       </div>
     </div>

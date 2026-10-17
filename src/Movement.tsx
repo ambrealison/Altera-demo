@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Lang, Profile } from "./lib/types";
+import type { Lang } from "./lib/types";
 import { STRINGS } from "./lib/i18n";
 import { BOOKING_URL, DOWNLOADS } from "./config";
 import europe from "./data/europe.json";
@@ -30,10 +30,10 @@ export function MiniMap({ label }: { label: string }) {
   );
 }
 
-/** The closing page: the movement across Europe, then the call to action for the visitor's profile. */
-export function Movement({ lang, profile, onRestart }: { lang: Lang; profile: Profile; onRestart: () => void }) {
+/** The closing page: the movement across Europe, then the call to action. */
+export function Movement({ lang, onRestart }: { lang: Lang; onRestart: () => void }) {
   const T = STRINGS[lang].end;
-  const C = T.profile[profile];
+  const S = STRINGS[lang];
   const [sel, setSel] = useState<number>(528);
   const country = BY_ID.get(sel) ?? BY_ID.get(528)!;
   const num = (v: number) => v.toLocaleString(lang === "fr" ? "fr-FR" : "en-GB", { maximumFractionDigits: 1 }) + (lang === "fr" ? " %" : "%");
@@ -119,11 +119,11 @@ export function Movement({ lang, profile, onRestart }: { lang: Lang; profile: Pr
 
       <div className="mv-cta rise d4">
         <div>
-          <h2>{C.title}</h2>
-          <p>{C.lead}</p>
+          <h2>{T.ctaTitle}</h2>
+          <p>{T.ctaLead}</p>
         </div>
         <div className="actions" style={{ marginTop: 0 }}>
-          <a className="pill pill-lav" href={BOOKING_URL} target="_blank" rel="noopener">{C.cta} <Arrow /></a>
+          <a className="pill pill-lav" href={BOOKING_URL} target="_blank" rel="noopener">{S.cta} <Arrow /></a>
           <button className="pill pill-ghost light" onClick={onRestart}>{T.restart}</button>
         </div>
       </div>

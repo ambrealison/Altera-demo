@@ -1,5 +1,5 @@
-/* Only for report.html: pages stacked on screen, one per A4 sheet in print. */
-@page { size: A4; margin: 0; }
+/* Only for report.html: pages stacked on screen, one 16:9 page per sheet in print. */
+@page { size: 1280px 720px; margin: 0; }
 body.report-body { background: #e9e5de; height: auto; }
 body.report-body #report { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 24px 0; }
 @media print {

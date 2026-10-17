@@ -1,30 +1,18 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type { Lang } from "./lib/types";
 import { STEPS, STRINGS, TIPS, TRACE, UI_STR, fill } from "./lib/i18n";
 import { CRISPS, F } from "./lib/facts";
 import { STOPS, type Stop } from "./tour";
 import { SceneView } from "./scenes";
-import { Gloss, termsIn } from "./Gloss";
 
 const W = 1240, H = 760, TIP_W = 340, GAP = 26;
 
 type Side = "left" | "right" | "below" | "above";
 
-interface Props {
-  index: number;
-  /** Position of this stop in the path being played, and how many stops it has. */
-  pos: number;
-  count: number;
-  lang: Lang;
-  playing: boolean;
-  onNext: () => void;
-  onBack: () => void;
-  onJump: (chapter: number) => void;
-  onHold: (hold: boolean) => void;
-  onStop: () => void;
-}
+interface Props { index: number; lang: Lang; onNext: () => void; onBack: () => void }
 
-export function Tour({ index, pos, count, lang, playing, onNext, onBack, onJump, onHold, onStop }: Props) {
+/** One step of the tour: the app window, one explanation, one button to the next step. */
+export function Tour({ index, lang, onNext, onBack }: Props) {
   const stop: Stop = STOPS[index];
   const S = STRINGS[lang];
   const U = UI_STR[lang];
@@ -35,9 +23,6 @@ export function Tour({ index, pos, count, lang, playing, onNext, onBack, onJump,
   const [mobile, setMobile] = useState(false);
   const [pt, setPt] = useState<{ x: number; y: number; side: Side } | null>(null);
   const [tipH, setTipH] = useState(220);
-  const [more, setMore] = useState(false);
-
-  useEffect(() => setMore(false), [index]);
 
   // fit the 1240×760 canvas into the available space
   useLayoutEffect(() => {
@@ -84,10 +69,10 @@ export function Tour({ index, pos, count, lang, playing, onNext, onBack, onJump,
 
   useLayoutEffect(() => {
     if (tipRef.current) setTipH(tipRef.current.offsetHeight);
-  }, [pt, index, lang, more]);
+  }, [pt, index, lang]);
 
   const tip = TIPS[lang][stop.id];
-  const last = pos === count;
+  const last = index === STOPS.length - 1;
 
   // tooltip beside the hotspot: right if there is room, else left; clamped vertically
   let box = { left: 0, top: 0, arrowTop: 0, arrowLeft: 0, side: "right" as Side };
@@ -106,26 +91,18 @@ export function Tour({ index, pos, count, lang, playing, onNext, onBack, onJump,
   const card = (
     <div className={mobile ? "tip sheet-tip" : "tip"} ref={tipRef} key={`${index}-${lang}`}
       style={mobile ? undefined : { left: box.left, top: box.top, visibility: pt ? "visible" : "hidden" }}
-      role="dialog" aria-live="polite" aria-label={tip.t}
-      onMouseEnter={() => onHold(true)} onMouseLeave={() => onHold(false)}>
+      role="dialog" aria-live="polite" aria-label={tip.t}>
       {!mobile && pt && <span className="arrow" style={
         box.side === "below" ? { top: -6, left: box.arrowLeft }
         : box.side === "above" ? { bottom: -6, left: box.arrowLeft }
         : { top: box.arrowTop, [box.side === "right" ? "left" : "right"]: -6 }} />}
-      <div className="tmeta">{fill(U.stepN, { n: stop.chapter })} · {STEPS[lang][stop.chapter - 1]}</div>
+      <div className="tmeta">{fill(U.stepOf, { n: stop.chapter, t: STOPS.length })}</div>
       <h3>{tip.t}</h3>
-      <p>
-        <Gloss text={tip.s} lang={lang} />{" "}
-        <button className="tmore-btn" aria-expanded={more} onClick={() => { setMore((m) => !m); onStop(); }}>
-          {more ? S.less : S.more}<span className="pm" aria-hidden>+</span>
-        </button>
-      </p>
-      {more && <p className="tmore"><Gloss text={tip.m} lang={lang} skip={termsIn(tip.s, lang)} /></p>}
+      <p>{tip.s}</p>
       <div className="tfollow"><i aria-hidden />{U.follow} · {TRACE[lang][stop.chapter - 1]}</div>
       <div className="tact">
         <button className="tback" onClick={onBack} aria-label={S.back}>←</button>
-        <span className="tcount">{pos}<i>/</i>{count}</span>
-        <button className={`tnext ${playing ? "playing" : ""}`} onClick={onNext} autoFocus>{last ? S.finish : S.next} <span>→</span></button>
+        <button className="tnext" onClick={onNext} autoFocus>{last ? S.next : S.nextStep} <span>→</span></button>
       </div>
     </div>
   );
@@ -153,7 +130,7 @@ export function Tour({ index, pos, count, lang, playing, onNext, onBack, onJump,
                       const n = i + 1;
                       const state = n < stop.chapter ? "done" : n === stop.chapter ? "now" : "";
                       return (
-                        <button key={s} className={`sstep ${state}`} onClick={() => onJump(n)} aria-label={fill(U.goTo, { n })} aria-current={n === stop.chapter ? "step" : undefined}>
+                        <div key={s} className={`sstep ${state}`} aria-current={n === stop.chapter ? "step" : undefined}>
                           <span className="c">{n < stop.chapter ? "✓" : n}</span>
                           <span className="st">
                             {s}
@@ -164,7 +141,7 @@ export function Tour({ index, pos, count, lang, playing, onNext, onBack, onJump,
                               </span>
                             )}
                           </span>
-                        </button>
+                        </div>
                       );
                     })}
                     <div className="side-foot">{S.fictitious}</div>
@@ -182,14 +159,7 @@ export function Tour({ index, pos, count, lang, playing, onNext, onBack, onJump,
                 </div>
               </div>
             </div>
-            <div className="layer">
-              {pt && (
-                <button className="hot" key={`hot-${index}`} style={{ left: pt.x, top: pt.y }} onClick={onNext} aria-label={S.next}>
-                  <i />
-                </button>
-              )}
-              {!mobile && card}
-            </div>
+            <div className="layer">{!mobile && card}</div>
           </div>
         </div>
       </div>

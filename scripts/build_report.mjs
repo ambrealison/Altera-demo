@@ -1,4 +1,4 @@
-// Print the sample insights report to PDF, in English and French.
+// Print the sample insights report (nine 16:9 pages) to PDF, in English and French.
 //
 //     npm run report
 //
@@ -21,13 +21,23 @@ const browser = await puppeteer.launch({ executablePath: CHROME, headless: true 
 try {
   for (const lang of ["en", "fr"]) {
     const page = await browser.newPage();
-    await page.setViewport({ width: 900, height: 1200 });
+    await page.setViewport({ width: 1320, height: 800 });
     await page.goto(`${base}report.html?lang=${lang}`, { waitUntil: "networkidle0" });
     await page.evaluate(() => document.fonts.ready);
     const pages = await page.$$eval(".rp-page", (xs) => xs.length);
-    if (pages !== 3) throw new Error(`expected 3 report pages, found ${pages}`);
+    if (pages !== 9) throw new Error(`expected 9 report pages, found ${pages}`);
+    // every page must keep its content inside its 1280 × 720 frame
+    const over = await page.$$eval(".rp-page", (xs) => xs.map((p, i) => {
+      const r = p.getBoundingClientRect();
+      const bottom = Math.max(...[...p.querySelectorAll("*")].map((e) => e.getBoundingClientRect().bottom));
+      const body = p.querySelector(".rp-body");
+      const inner = body ? Math.max(...[...body.children].map((e) => e.getBoundingClientRect().bottom)) - body.getBoundingClientRect().bottom : 0;
+      if (inner > 0.5) return `page ${i + 1}: content runs ${Math.round(inner)}px into the closing line`;
+      return bottom > r.bottom + 0.5 ? `page ${i + 1} overflows by ${Math.round(bottom - r.bottom)}px` : null;
+    }).filter(Boolean));
+    if (over.length) throw new Error(over.join("; "));
     const out = resolve(ROOT, `public/downloads/HarbourMarket_Insights_Report_DEMO_${lang.toUpperCase()}.pdf`);
-    await page.pdf({ path: out, format: "A4", printBackground: true, preferCSSPageSize: true });
+    await page.pdf({ path: out, width: "1280px", height: "720px", printBackground: true, preferCSSPageSize: true });
     console.log(`  -> ${out.replace(ROOT + "/", "")} (${Math.round(statSync(out).size / 1024)} KB)`);
     await page.close();
   }

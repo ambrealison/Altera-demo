@@ -18,15 +18,10 @@ function Term({ def, children }: { def: string; children: ReactNode }) {
   );
 }
 
-/** The glossary terms a text contains, lower-cased. */
-export function termsIn(text: string, lang: Lang): string[] {
-  return [...text.matchAll(RE[lang])].map((m) => m[0].toLowerCase());
-}
-
-/** Text in which the first occurrence of each glossary term explains itself (unless already explained nearby). */
-export function Gloss({ text, lang, skip = [] }: { text: string; lang: Lang; skip?: string[] }) {
+/** Text in which the first occurrence of each glossary term explains itself. */
+export function Gloss({ text, lang }: { text: string; lang: Lang }) {
   const out: ReactNode[] = [];
-  const seen = new Set<string>(skip);
+  const seen = new Set<string>();
   let last = 0;
   for (const m of text.matchAll(RE[lang])) {
     const key = m[0].toLowerCase();
