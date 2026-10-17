@@ -4,7 +4,7 @@ import { STEPS, STRINGS, TIPS, UI_STR, fill } from "./lib/i18n";
 import { STOPS, type Stop } from "./tour";
 import { SceneView } from "./scenes";
 
-const W = 1240, H = 760;
+const W = 1120, H = 640;
 /** Below this width the explanation moves under the app window. */
 const NARROW = 1000;
 
@@ -23,7 +23,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
   const [scale, setScale] = useState(0);
   const [narrow, setNarrow] = useState(false);
 
-  // fit the 1240×760 window into the space left by the explanation
+  // fit the 1120×640 window into the space left by the explanation
   useLayoutEffect(() => {
     const el = stageRef.current;
     if (!el) return;
@@ -53,7 +53,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                 <div className="wbar">
                   <span className="wlogo">Altera<em>.ai</em></span>
                   <span className="crumb"><b>{U.project.split("·")[0]}</b>·{U.project.split("·")[1]}</span>
-                  <span className="wright"><span className="badge">Demo</span><span className="avatar">HM</span></span>
+                  <span className="wright"><span className="badge">{U.demoBadge}</span><span className="avatar">HM</span></span>
                 </div>
                 <div className="wbody">
                   <aside className="side">
@@ -68,16 +68,14 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                         </div>
                       );
                     })}
-                    <div className="side-foot">{S.fictitious}</div>
                   </aside>
                   <main className="main">
                     <div className="shead" key={`h-${stop.chapter}-${lang}`} style={{ animation: "fadein .5s both" }}>
                       <div className="k">{fill(U.stepN, { n: stop.chapter })}<span className="kstep">Altera AI</span></div>
                       <h2>{STEPS[lang][stop.chapter - 1]}</h2>
-                      <p>{U.sub[stop.chapter - 1]}</p>
                     </div>
-                    <div className="scene spot" key={`${stop.scene}-${lang}`}>
-                      <SceneView scene={stop.scene} sub={stop.sub} focus={stop.focus} lang={lang} />
+                    <div className="scene" key={`${stop.id}-${lang}`}>
+                      <SceneView scene={stop.id} lang={lang} />
                     </div>
                   </main>
                 </div>
@@ -93,7 +91,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
           {STOPS.map((s) => <i key={s.id} className={s.chapter < stop.chapter ? "done" : s.chapter === stop.chapter ? "now" : ""} />)}
         </div>
         <h2>{tip.t}</h2>
-        <p>{tip.s}</p>
+        {tip.p.map((t, i) => <p className="g-p" key={i}><span className="nb">{i + 1}</span><span>{t}</span></p>)}
         <div className="g-nav">
           <button className="g-back" onClick={onBack} aria-label={S.back}>←</button>
           <button className="g-next" onClick={onNext} autoFocus>{last ? S.next : S.nextStep} <span>→</span></button>

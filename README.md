@@ -7,12 +7,13 @@ CSR teams, NGOs and retailers new to the topic. One page at a time, one button t
 2. **What you receive**: the sample insights report (nine pages, zoomable) and the
    workbook, both to download.
 3. **Two methodologies**, side by side; technical terms explain themselves on hover.
-4. **The tour**: seven steps, one page each. The Altera AI app window is shown whole; the part
-   the step is about is framed in lavender and the rest toned down. Each step has
-   one explanation beside the window (below it on narrow screens), so it never covers the
-   interface, and a "Next step" button; nothing else in the window is clickable.
-   The steps follow in order the eleven steps of "How Altera AI works" (Altera-agent
-   repository). One product, a bag of crisps, is followed from end to end.
+4. **The tour**: ten steps, one page each, following "The Altera protein ratio method":
+   data received, scope, classification, protein content, plant / animal split, volumes,
+   WWF ratio, Protein Tracker ratio, checks and accuracy, delivery. The Altera AI app window
+   is shown whole; each screen has two numbered parts, and the explanation beside the
+   window (below it on narrow screens) has one paragraph for each, so nothing on screen
+   goes unexplained and nothing covers the interface. A "Next step" button moves on;
+   nothing else in the window is clickable.
 5. **The movement** across Europe (public sources, cited on the page), then the booking link.
 
 The tour shows proportions, never figures. English and French; WWF always comes first.
@@ -31,8 +32,8 @@ real retailer or a measured accuracy.
 
 ## Structure
 
-- `src/tour.ts`: the seven steps, one page each (screen, anchor, side of the explanation).
-- `src/scenes.tsx`: the seven app screens.
+- `src/tour.ts`: the ten steps, one page each.
+- `src/scenes.tsx`: the ten app screens, two numbered parts each.
 - `src/Frame.tsx`: the app window, the chapter sidebar, hotspot and tooltip placement.
 - `src/slides.tsx`: cover, why now, what you receive, the two methodologies.
 - `src/report/`: the sample insights report (nine 16:9 pages, in the layout of a real Altera restitution), shown in the demo and printed from `report.html`.
