@@ -175,29 +175,23 @@ export interface Tip { t: string; s: string }
 
 export const TIPS: Record<Lang, Record<string, Tip>> = {
   en: {
-    intake: { t: "Your file, and what counts", s: "Altera AI keeps your original intact and measures what it contains. Only food sold over the year counts; WWF also sets aside alcohol, most drinks, condiments and stock. On the left, we follow one product to the end." },
-    classes: { t: "Two classifications per product", s: "Each product gets a WWF food group and a Protein Tracker class, never merged. Known products keep their classification; the language model classifies the rest, one product at a time. Our crisps: FG7 for WWF, Composite for the Protein Tracker." },
+    intake: { t: "Your file, and what counts", s: "Altera AI keeps your original intact and measures what it contains. Only food sold over the year counts; WWF also sets aside alcohol, most drinks, condiments and stock." },
+    classes: { t: "Two classifications per product", s: "Each product gets a WWF food group and a Protein Tracker class, never merged. Known products keep their classification; the language model classifies the rest, one product at a time." },
     cascade: { t: "A protein value for every product", s: "The retailer's value first, once checked against the energy on the label. Gaps are filled from the Altera reference base, Open Food Facts and NEVO, the country's food table (CIQUAL in France), then the category median. Each value keeps its source." },
-    origin: { t: "Origin is not the split", s: "WWF counts our crisps as animal origin, for the milk, yet almost all their protein comes from potato. So the split is measured product by product: level A when it is measured, level B when it follows a convention." },
+    origin: { t: "Origin is not the split", s: "WWF counts these crisps as animal origin, for the milk, yet almost all their protein comes from potato. So the split is measured product by product: level A when it is measured, level B when it follows a convention." },
     ratios: { t: "Two ratios, side by side", s: "WWF counts tonnes of product, with cheese converted into dairy equivalents. The Protein Tracker counts tonnes of protein: volume × net weight × protein per 100 g. Both break down by department, so you see which aisles move them." },
     accuracy: { t: "Checked, then measured by people", s: "Every automated check must pass. Then a sealed control sample is reviewed by hand: 500 rows at random, the 500 products weighing most in tonnes of protein, and the 3 best sellers of every category. One accuracy rate per field." },
     deliverables: { t: "Ready for reporting, and yours", s: "A formula-driven workbook, an insights report, the line-level file with the source of every value, and the WWF scope statement. Sales volumes never go to the AI, and nothing from one retailer is shown to another." },
   },
   fr: {
-    intake: { t: "Votre fichier, et ce qui compte", s: "Altera AI garde l'original intact et mesure ce qu'il contient. Seuls les produits alimentaires vendus sur l'année comptent ; WWF écarte en plus l'alcool, la plupart des boissons, les condiments et les bouillons. À gauche, on suit un produit jusqu'au bout." },
-    classes: { t: "Deux classifications par produit", s: "Chaque produit reçoit un groupe d'aliments WWF et une classe Protein Tracker, jamais fusionnés. Les produits connus gardent leur classification ; le modèle de langage classe le reste, un produit à la fois. Nos chips : FG7 pour WWF, Composite pour le Protein Tracker." },
+    intake: { t: "Votre fichier, et ce qui compte", s: "Altera AI garde l'original intact et mesure ce qu'il contient. Seuls les produits alimentaires vendus sur l'année comptent ; WWF écarte en plus l'alcool, la plupart des boissons, les condiments et les bouillons." },
+    classes: { t: "Deux classifications par produit", s: "Chaque produit reçoit un groupe d'aliments WWF et une classe Protein Tracker, jamais fusionnés. Les produits connus gardent leur classification ; le modèle de langage classe le reste, un produit à la fois." },
     cascade: { t: "Une teneur pour chaque produit", s: "D'abord la valeur du distributeur, vérifiée contre l'énergie de l'étiquette. Les trous sont comblés par la base de référence Altera, Open Food Facts et NEVO, la table nationale du pays (CIQUAL en France), puis la médiane de la catégorie. Chaque valeur garde sa source." },
-    origin: { t: "L'origine n'est pas le partage", s: "WWF compte nos chips d'origine animale, à cause du lait, alors que presque toutes leurs protéines viennent de la pomme de terre. Le partage se mesure donc produit par produit : niveau A s'il est mesuré, niveau B s'il suit une convention." },
+    origin: { t: "L'origine n'est pas le partage", s: "WWF compte ces chips d'origine animale, à cause du lait, alors que presque toutes leurs protéines viennent de la pomme de terre. Le partage se mesure donc produit par produit : niveau A s'il est mesuré, niveau B s'il suit une convention." },
     ratios: { t: "Deux ratios, côte à côte", s: "WWF compte des tonnes de produit, le fromage converti en équivalents lait. Le Protein Tracker compte des tonnes de protéines : volume × poids net × protéines pour 100 g. Les deux se déclinent par rayon : on voit quels rayons les font bouger." },
     accuracy: { t: "Contrôlé, puis mesuré par des personnes", s: "Chaque contrôle automatique doit passer. Puis un échantillon scellé est relu à la main : 500 lignes au hasard, les 500 produits qui pèsent le plus en tonnes de protéines, et les 3 meilleures ventes de chaque catégorie. Un taux d'exactitude par champ." },
     deliverables: { t: "Prêt pour le reporting, et à vous", s: "Un classeur tout en formules, un rapport d'analyse, le fichier ligne à ligne avec la source de chaque valeur, et la déclaration de périmètre WWF. Les volumes de vente ne vont jamais à l'IA, et rien d'un distributeur n'est montré à un autre." },
   },
-};
-
-// ------------------------------------------------------------ the product followed through the tour, one line per step
-export const TRACE: Record<Lang, string[]> = {
-  en: ["Food, sold all year: in scope", "WWF FG7 · Composite", "6.3 g / 100 g · Open Food Facts", "Mostly plant · level A", "Weighed by its sales", "Every check passes", "One row, every value sourced"],
-  fr: ["Alimentaire, vendu : dans le périmètre", "WWF FG7 · Composite", "6,3 g / 100 g · Open Food Facts", "Surtout végétal · niveau A", "Pondéré par ses ventes", "Tous les contrôles passent", "Une ligne, chaque valeur sourcée"],
 };
 
 // ------------------------------------------------------------ glossary: terms explained on hover, wherever they appear
@@ -237,8 +231,6 @@ const uiEn = {
   project: "Harbour Market · Catalogue FY2026",
   workflow: "Steps",
   stepN: "Step {n}",
-  following: "Following one product",
-  follow: "Our crisps",
   stepOf: "Step {n} of {t}",
   sub: [
     "Altera AI keeps your file intact, measures what it contains and fixes the scope.",
@@ -313,8 +305,6 @@ const uiFr: UI = {
   project: "Harbour Market · Catalogue 2026",
   workflow: "Étapes",
   stepN: "Étape {n}",
-  following: "On suit un produit",
-  follow: "Nos chips",
   stepOf: "Étape {n} sur {t}",
   sub: [
     "Altera AI garde votre fichier intact, mesure ce qu'il contient et fixe le périmètre.",

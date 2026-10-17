@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import type { Lang, PtClass } from "./lib/types";
-import { TRACE, UI_STR, dept } from "./lib/i18n";
+import { UI_STR, dept } from "./lib/i18n";
 import { PT_CLASSES, FOOD_GROUPS } from "./lib/calc";
 import { CLASS_COUNT, CLASS_EXAMPLE, CRISPS, DEPTS, F, FG_COUNT, PROT_COUNT, PT, ROUTE_COUNT, SHEET_ROWS, WWF, WWF_COMPOSITES, WWF_EXCLUDED } from "./lib/facts";
 import type { Scene } from "./tour";
@@ -79,8 +79,7 @@ const Card = ({ title, aside, children, className, anchor, style }: { title?: Re
 const Legend = ({ items }: { items: [string, string][] }) => (
   <span className="legend" style={{ margin: 0 }}>{items.map(([c, l]) => <span key={l}><i style={{ background: c }} />{l}</span>)}</span>
 );
-/** Marks where the product followed through the tour lands on each screen. */
-const Follow = ({ lang }: { lang: Lang }) => <span className="follow"><i aria-hidden />{UI_STR[lang].follow}</span>;
+
 
 // ------------------------------------------------------------ 1 · reads and scopes the file (method steps 1–2)
 function Intake(p: P) {
@@ -121,7 +120,6 @@ function Intake(p: P) {
           <div className="excl">{Object.values(U.excl).map((e) => <span key={e}>{e}</span>)}</div>
           <div className="wf-row"><span>{U.wwfScope}</span><div className="wf-bar"><i style={{ width: g ? `${(100 * F.funnel.wwf) / N}%` : 0, background: "var(--comp)" }} /></div></div>
         </div>
-        <div className="follow-line"><Follow lang={p.lang} />{TRACE[p.lang][0]}</div>
       </Card>
     </div>
   );
@@ -141,7 +139,7 @@ function Classify(p: P) {
         <Card title="WWF · Planet-Based Diets" aside={<span className="chip">{U.sevenGroups}</span>} className={on(p, "wwf-groups")} anchor="wwf-groups">
           <div className="fgrid">
             {FOOD_GROUPS.map((k) => (
-              <div className="frow2" key={k}><b className="fgk">{k}</b><span>{U.fg[k as keyof typeof U.fg]}{k === "FG7" && <Follow lang={p.lang} />}</span><Bar v={FG_COUNT[k] / maxG} grow={g} color="var(--ink)" h={5} /></div>
+              <div className="frow2" key={k}><b className="fgk">{k}</b><span>{U.fg[k as keyof typeof U.fg]}</span><Bar v={FG_COUNT[k] / maxG} grow={g} color="var(--ink)" h={5} /></div>
             ))}
             <div className="frow2"><b className="fgk" style={{ color: "var(--comp)" }}>C</b><span>{U.composite}</span><Bar v={WWF_COMPOSITES / maxG} grow={g} color="var(--comp)" h={5} /></div>
             <div className="frow2 muted"><b className="fgk">×</b><span>{U.excluded}</span><Bar v={WWF_EXCLUDED / maxG} grow={g} color="var(--faint)" h={5} /></div>
@@ -151,7 +149,7 @@ function Classify(p: P) {
           {PT_CLASSES.map((c) => (
             <div className="crow" key={c}>
               <span className="cdot" style={{ background: CLASS_COLOR[c] }} />
-              <span className="cname"><span>{U.classes[c]}{c === "composite" && <Follow lang={p.lang} />}</span><small className="mono">{c === "composite" ? CRISPS.label : CLASS_EXAMPLE[c]?.label}</small></span>
+              <span className="cname"><span>{U.classes[c]}</span><small className="mono">{CLASS_EXAMPLE[c]?.label}</small></span>
               <Bar v={CLASS_COUNT[c] / maxC} grow={g} color={CLASS_COLOR[c]} h={6} />
             </div>
           ))}
@@ -163,7 +161,7 @@ function Classify(p: P) {
         </div>
         <div className="routes">
           {routes.map(([r, col]) => (
-            <div key={r}><b><i style={{ background: col }} />{U.sources[r][0]}</b><span>{U.sources[r][1]}</span>{r === CRISPS.route && <Follow lang={p.lang} />}</div>
+            <div key={r}><b><i style={{ background: col }} />{U.sources[r][0]}</b><span>{U.sources[r][1]}</span></div>
           ))}
         </div>
       </Card>
@@ -183,7 +181,7 @@ function Protein(p: P) {
         {order.map((s, i) => (
           <div key={s} className="casc" style={{ gridTemplateColumns: "24px minmax(0, 1fr) 130px" }}>
             <span className={cx("cidx", i === 0 && "first")}>{i + 1}</span>
-            <span className="cl">{U.protSrc[s]}{s === CRISPS.prot_src && <Follow lang={p.lang} />}</span>
+            <span className="cl">{U.protSrc[s]}</span>
             <Bar v={PROT_COUNT[s] / N} grow={g} color={i === 0 ? "var(--ink)" : "var(--green-2)"} h={6} />
           </div>
         ))}
@@ -214,7 +212,7 @@ function SplitScene(p: P) {
   return (
     <div className="grid2" style={{ gridTemplateColumns: "minmax(0, 1.1fr) minmax(0, 0.9fr)", alignItems: "start" }}>
       <Card>
-        <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}><span className="fmeta upper">{CRISPS.brand}</span><Follow lang={p.lang} /></div>
+        <div className="fmeta upper">{CRISPS.brand}</div>
         <div className="mono" style={{ fontSize: 18, fontWeight: 600, margin: "4px 0 14px" }}>{CRISPS.label}</div>
         <div className="ctitle" style={{ marginBottom: 6 }}>{U.ingredients}</div>
         <p className="pingr">{ingr.map((s, i) => (/milk/i.test(s) ? <mark key={i}>{s}</mark> : <span key={i}>{s}</span>))}</p>
@@ -236,7 +234,7 @@ function SplitScene(p: P) {
           <i style={{ flexBasis: g ? `${F.levelA * 100}%` : "0%", background: "var(--ink)" }}><span>A</span></i>
           <i style={{ flexBasis: g ? `${(1 - F.levelA) * 100}%` : "0%", background: "var(--paper)", color: "var(--ink)" }}><span>B</span></i>
         </div>
-        <div className="lvl"><b><span className="sq" style={{ background: "var(--ink)" }} />{U.levelA}{CRISPS.level === "A" && <Follow lang={p.lang} />}</b><p>{U.levelAList}</p></div>
+        <div className="lvl"><b><span className="sq" style={{ background: "var(--ink)" }} />{U.levelA}</b><p>{U.levelAList}</p></div>
         <div className="lvl"><b><span className="sq" style={{ background: "var(--paper)", border: "1px solid var(--line)" }} />{U.levelB}</b><p>{U.levelBList}</p></div>
       </Card>
     </div>
@@ -271,7 +269,7 @@ function Calculate(p: P) {
         <Card title="Protein Tracker" className={cx(p.sub < 1 && "dim", on(p, "pt"))} anchor="pt">
           <div className="row" style={{ alignItems: "center", gap: 16 }}>
             <Ring value={g ? F.ptRatio : 0} size={84} stroke={10} track="var(--peach-soft)" color="var(--plant)" />
-            <div className="col" style={{ gap: 6 }}><div className="fmeta" style={{ fontSize: 13 }}>{U.ptKpi}</div><Follow lang={p.lang} /></div>
+            <div className="fmeta" style={{ fontSize: 13 }}>{U.ptKpi}</div>
           </div>
           <div className="seg-bar thin" style={{ marginTop: 14 }}>
             {PT_CLASSES.map((c) => <i key={c} style={{ flexBasis: g ? `${(100 * PT.byClass[c]) / PT.total}%` : "0%", background: CLASS_COLOR[c] }} />)}
@@ -312,7 +310,7 @@ function Quality(p: P) {
   const tones = ["var(--green)", "var(--ink)", "var(--comp)"];
   return (
     <div className="grid2" style={{ gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 0.8fr)", flex: 1, minHeight: 0 }}>
-      <Card title={U.checksTitle} aside={<span className="row" style={{ gap: 8, alignItems: "center" }}><Follow lang={p.lang} /><span className="chip ok">{U.allPass}</span></span>} className={on(p, "checks")} anchor="checks">
+      <Card title={U.checksTitle} aside={<span className="chip ok">{U.allPass}</span>} className={on(p, "checks")} anchor="checks">
         <div className="cgroups">
           {U.checkGroups.map(([gname, xs]) => (
             <div key={gname}>
@@ -357,9 +355,9 @@ function Deliver(p: P) {
         ))}
         <div className="sheet">
           {U.sheetCols.map((c, i) => <span key={c} className={cx("h", i === 1 && "in")}>{c}</span>)}
-          {[CRISPS, ...SHEET_ROWS.slice(0, 4)].map((x, r) => (
-            <span key={x.id} className={x.id === CRISPS.id ? "followrow" : undefined} style={{ display: "contents" }}>
-              <span className="mono">{x.id === CRISPS.id && <i className="fdot" aria-hidden />}{x.label}</span>
+          {SHEET_ROWS.map((x, r) => (
+            <span key={x.id} style={{ display: "contents" }}>
+              <span className="mono">{x.label}</span>
               <span className="in"><i className="skel" style={{ width: `${46 + ((r * 17) % 40)}%` }} /></span>
               <span><i className="skel g" style={{ width: `${30 + ((r * 23) % 55)}%` }} /></span>
               <span><i className="skel g" style={{ width: `${25 + ((r * 31) % 60)}%` }} /></span>

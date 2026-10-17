@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { Lang } from "./lib/types";
-import { STEPS, STRINGS, TIPS, TRACE, UI_STR, fill } from "./lib/i18n";
-import { CRISPS, F } from "./lib/facts";
+import { STEPS, STRINGS, TIPS, UI_STR, fill } from "./lib/i18n";
 import { STOPS, type Stop } from "./tour";
 import { SceneView } from "./scenes";
 
@@ -58,10 +57,6 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                 </div>
                 <div className="wbody">
                   <aside className="side">
-                    <div className="followcard">
-                      <span className="fc-k"><i aria-hidden />{U.following}</span>
-                      <span className="fc-label mono">{CRISPS.label}</span>
-                    </div>
                     <div className="side-label">{U.workflow}</div>
                     {STEPS[lang].map((s, i) => {
                       const n = i + 1;
@@ -69,15 +64,7 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                       return (
                         <div key={s} className={`sstep ${state}`} aria-current={n === stop.chapter ? "step" : undefined}>
                           <span className="c">{n < stop.chapter ? "✓" : n}</span>
-                          <span className="st">
-                            {s}
-                            {state && (
-                              <span className="trace" key={`${n}-${lang}`}>
-                                {n === 4 && <span className="tsplit"><i style={{ width: `${F.crispsPlant * 100}%` }} /></span>}
-                                {TRACE[lang][i]}
-                              </span>
-                            )}
-                          </span>
+                          <span className="st">{s}</span>
                         </div>
                       );
                     })}
@@ -107,7 +94,6 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
         </div>
         <h2>{tip.t}</h2>
         <p>{tip.s}</p>
-        <div className="g-follow"><i aria-hidden />{U.follow} · {TRACE[lang][stop.chapter - 1]}</div>
         <div className="g-nav">
           <button className="g-back" onClick={onBack} aria-label={S.back}>←</button>
           <button className="g-next" onClick={onNext} autoFocus>{last ? S.next : S.nextStep} <span>→</span></button>
