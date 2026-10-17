@@ -18,18 +18,16 @@ export interface Stop {
   scene: Scene;
   /** Sub-state of the scene; each page shows its scene in full. */
   sub: number;
-  /** data-anchor of the card the explanation points at. */
-  anchor: string;
-  /** Where the explanation goes; by default beside the card, on the side with room. */
-  side?: "left" | "right" | "below" | "above";
+  /** data-anchor of the parts of the screen the step is about: framed, the rest toned down. */
+  focus: string[];
 }
 
 export const STOPS: Stop[] = [
-  { id: "intake", chapter: 1, scene: "intake", sub: 1, anchor: "scope", side: "left" },
-  { id: "classes", chapter: 2, scene: "classify", sub: 1, anchor: "wwf-groups", side: "below" },
-  { id: "cascade", chapter: 3, scene: "protein", sub: 1, anchor: "cascade", side: "right" },
-  { id: "origin", chapter: 4, scene: "split", sub: 1, anchor: "split", side: "right" },
-  { id: "ratios", chapter: 5, scene: "calculate", sub: 2, anchor: "pt", side: "below" },
-  { id: "accuracy", chapter: 6, scene: "quality", sub: 1, anchor: "accuracy", side: "left" },
-  { id: "deliverables", chapter: 7, scene: "deliver", sub: 1, anchor: "deliverables", side: "right" },
+  { id: "intake", chapter: 1, scene: "intake", sub: 1, focus: ["scope"] },
+  { id: "classes", chapter: 2, scene: "classify", sub: 1, focus: ["wwf-groups", "pt-classes"] },
+  { id: "cascade", chapter: 3, scene: "protein", sub: 1, focus: ["cascade"] },
+  { id: "origin", chapter: 4, scene: "split", sub: 1, focus: ["split", "levels"] },
+  { id: "ratios", chapter: 5, scene: "calculate", sub: 2, focus: ["wwf", "pt"] },
+  { id: "accuracy", chapter: 6, scene: "quality", sub: 1, focus: ["accuracy"] },
+  { id: "deliverables", chapter: 7, scene: "deliver", sub: 1, focus: ["deliverables", "governance"] },
 ];

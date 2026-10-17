@@ -7,8 +7,10 @@ CSR teams, NGOs and retailers new to the topic. One page at a time, one button t
 2. **What you receive**: the sample insights report (nine pages, zoomable) and the
    workbook, both to download.
 3. **Two methodologies**, side by side; technical terms explain themselves on hover.
-4. **The tour**: seven steps, one page each, in the Altera AI app window. Each step has
-   one explanation and a "Next step" button; nothing else in the window is clickable.
+4. **The tour**: seven steps, one page each. The Altera AI app window is shown whole; the part
+   the step is about is framed in lavender and the rest toned down. Each step has
+   one explanation beside the window (below it on narrow screens), so it never covers the
+   interface, and a "Next step" button; nothing else in the window is clickable.
    The steps follow in order the eleven steps of "How Altera AI works" (Altera-agent
    repository). One product, a bag of crisps, is followed from end to end.
 5. **The movement** across Europe (public sources, cited on the page), then the booking link.

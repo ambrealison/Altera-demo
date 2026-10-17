@@ -8,11 +8,11 @@ import type { Scene } from "./tour";
 // The tour shows proportions, never figures: bars and rings are drawn from the fictitious
 // catalogue, but no count or percentage is printed.
 
-interface P { sub: number; anchor: string; lang: Lang }
+interface P { sub: number; focus: string[]; lang: Lang }
 
 // ------------------------------------------------------------ helpers
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
-const on = (p: P, id: string) => (p.anchor === id ? "focus" : "");
+const on = (p: P, id: string) => (p.focus.includes(id) ? "focus" : "");
 
 function useGrow(dep: unknown = 0) {
   const [g, setG] = useState(false);
@@ -147,7 +147,7 @@ function Classify(p: P) {
             <div className="frow2 muted"><b className="fgk">×</b><span>{U.excluded}</span><Bar v={WWF_EXCLUDED / maxG} grow={g} color="var(--faint)" h={5} /></div>
           </div>
         </Card>
-        <Card title="Protein Tracker" aside={<span className="chip">{U.fourClasses}</span>}>
+        <Card title="Protein Tracker" aside={<span className="chip">{U.fourClasses}</span>} className={on(p, "pt-classes")} anchor="pt-classes">
           {PT_CLASSES.map((c) => (
             <div className="crow" key={c}>
               <span className="cdot" style={{ background: CLASS_COLOR[c] }} />
@@ -312,7 +312,7 @@ function Quality(p: P) {
   const tones = ["var(--green)", "var(--ink)", "var(--comp)"];
   return (
     <div className="grid2" style={{ gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 0.8fr)", flex: 1, minHeight: 0 }}>
-      <Card title={U.checksTitle} aside={<span className="row" style={{ gap: 8, alignItems: "center" }}><Follow lang={p.lang} /><span className="chip ok">{U.allPass}</span></span>} anchor="checks">
+      <Card title={U.checksTitle} aside={<span className="row" style={{ gap: 8, alignItems: "center" }}><Follow lang={p.lang} /><span className="chip ok">{U.allPass}</span></span>} className={on(p, "checks")} anchor="checks">
         <div className="cgroups">
           {U.checkGroups.map(([gname, xs]) => (
             <div key={gname}>
