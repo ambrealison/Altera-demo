@@ -1,16 +1,30 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Lang } from "./lib/types";
-import { STEPS, STRINGS, TIPS, UI_STR, fill } from "./lib/i18n";
+import { STEPS, STRINGS, TIPS, TRACE, UI_STR, fill } from "./lib/i18n";
+import { CRISPS, F } from "./lib/facts";
 import { STOPS, type Stop } from "./tour";
 import { SceneView } from "./scenes";
+import { Gloss, termsIn } from "./Gloss";
 
 const W = 1240, H = 760, TIP_W = 340, GAP = 26;
 
 type Side = "left" | "right" | "below" | "above";
 
-interface Props { index: number; lang: Lang; onNext: () => void; onBack: () => void }
+interface Props {
+  index: number;
+  /** Position of this stop in the path being played, and how many stops it has. */
+  pos: number;
+  count: number;
+  lang: Lang;
+  playing: boolean;
+  onNext: () => void;
+  onBack: () => void;
+  onJump: (chapter: number) => void;
+  onHold: (hold: boolean) => void;
+  onStop: () => void;
+}
 
-export function Tour({ index, lang, onNext, onBack }: Props) {
+export function Tour({ index, pos, count, lang, playing, onNext, onBack, onJump, onHold, onStop }: Props) {
   const stop: Stop = STOPS[index];
   const S = STRINGS[lang];
   const U = UI_STR[lang];
@@ -21,6 +35,9 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
   const [mobile, setMobile] = useState(false);
   const [pt, setPt] = useState<{ x: number; y: number; side: Side } | null>(null);
   const [tipH, setTipH] = useState(220);
+  const [more, setMore] = useState(false);
+
+  useEffect(() => setMore(false), [index]);
 
   // fit the 1240×760 canvas into the available space
   useLayoutEffect(() => {
@@ -67,41 +84,48 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
 
   useLayoutEffect(() => {
     if (tipRef.current) setTipH(tipRef.current.offsetHeight);
-  }, [pt, index, lang]);
+  }, [pt, index, lang, more]);
 
-  const [title, body] = TIPS[lang][stop.id];
-  const text = body;
-  const last = index === STOPS.length - 1;
+  const tip = TIPS[lang][stop.id];
+  const last = pos === count;
 
   // tooltip beside the hotspot: right if there is room, else left; clamped vertically
-  let tip = { left: 0, top: 0, arrowTop: 0, arrowLeft: 0, side: "right" as Side };
+  let box = { left: 0, top: 0, arrowTop: 0, arrowLeft: 0, side: "right" as Side };
   if (pt?.side === "below" || pt?.side === "above") {
     const left = Math.max(12, Math.min(W - TIP_W - 12, pt.x - TIP_W / 2));
     const want = pt.side === "below" ? pt.y + GAP : pt.y - GAP - tipH;
     const top = Math.max(12, Math.min(H - tipH - 12, want));
-    tip = { left, top, arrowTop: 0, arrowLeft: pt.x - left - 7, side: pt.side };
+    box = { left, top, arrowTop: 0, arrowLeft: pt.x - left - 7, side: pt.side };
   } else if (pt) {
     const right = pt.side === "right" && pt.x + GAP + TIP_W < W - 12;
     const left = right ? pt.x + GAP : Math.max(12, pt.x - GAP - TIP_W);
     const top = Math.max(16, Math.min(H - tipH - 16, pt.y - tipH / 2));
-    tip = { left, top, arrowTop: Math.max(18, Math.min(tipH - 32, pt.y - top - 7)), arrowLeft: 0, side: right ? "right" : "left" };
+    box = { left, top, arrowTop: Math.max(18, Math.min(tipH - 32, pt.y - top - 7)), arrowLeft: 0, side: right ? "right" : "left" };
   }
 
   const card = (
     <div className={mobile ? "tip sheet-tip" : "tip"} ref={tipRef} key={`${index}-${lang}`}
-      style={mobile ? undefined : { left: tip.left, top: tip.top, visibility: pt ? "visible" : "hidden" }}
-      role="dialog" aria-live="polite" aria-label={title}>
+      style={mobile ? undefined : { left: box.left, top: box.top, visibility: pt ? "visible" : "hidden" }}
+      role="dialog" aria-live="polite" aria-label={tip.t}
+      onMouseEnter={() => onHold(true)} onMouseLeave={() => onHold(false)}>
       {!mobile && pt && <span className="arrow" style={
-        tip.side === "below" ? { top: -6, left: tip.arrowLeft }
-        : tip.side === "above" ? { bottom: -6, left: tip.arrowLeft }
-        : { top: tip.arrowTop, [tip.side === "right" ? "left" : "right"]: -6 }} />}
+        box.side === "below" ? { top: -6, left: box.arrowLeft }
+        : box.side === "above" ? { bottom: -6, left: box.arrowLeft }
+        : { top: box.arrowTop, [box.side === "right" ? "left" : "right"]: -6 }} />}
       <div className="tmeta">{fill(U.stepN, { n: stop.chapter })} · {STEPS[lang][stop.chapter - 1]}</div>
-      <h3>{title}</h3>
-      <p>{text}</p>
+      <h3>{tip.t}</h3>
+      <p>
+        <Gloss text={tip.s} lang={lang} />{" "}
+        <button className="tmore-btn" aria-expanded={more} onClick={() => { setMore((m) => !m); onStop(); }}>
+          {more ? S.less : S.more}<span className="pm" aria-hidden>+</span>
+        </button>
+      </p>
+      {more && <p className="tmore"><Gloss text={tip.m} lang={lang} skip={termsIn(tip.s, lang)} /></p>}
+      <div className="tfollow"><i aria-hidden />{U.follow} · {TRACE[lang][stop.chapter - 1]}</div>
       <div className="tact">
         <button className="tback" onClick={onBack} aria-label={S.back}>←</button>
-        <span className="tcount">{index + 1}<i>/</i>{STOPS.length}</span>
-        <button className="tnext" onClick={onNext} autoFocus>{last ? S.finish : S.next} <span>→</span></button>
+        <span className="tcount">{pos}<i>/</i>{count}</span>
+        <button className={`tnext ${playing ? "playing" : ""}`} onClick={onNext} autoFocus>{last ? S.finish : S.next} <span>→</span></button>
       </div>
     </div>
   );
@@ -120,12 +144,29 @@ export function Tour({ index, lang, onNext, onBack }: Props) {
                 </div>
                 <div className="wbody">
                   <aside className="side">
+                    <div className="followcard">
+                      <span className="fc-k"><i aria-hidden />{U.following}</span>
+                      <span className="fc-label mono">{CRISPS.label}</span>
+                    </div>
                     <div className="side-label">{U.workflow}</div>
-                    {STEPS[lang].map((s, i) => (
-                      <div key={s} className={`sstep ${i + 1 < stop.chapter ? "done" : i + 1 === stop.chapter ? "now" : ""}`}>
-                        <span className="c">{i + 1 < stop.chapter ? "✓" : i + 1}</span>{s}
-                      </div>
-                    ))}
+                    {STEPS[lang].map((s, i) => {
+                      const n = i + 1;
+                      const state = n < stop.chapter ? "done" : n === stop.chapter ? "now" : "";
+                      return (
+                        <button key={s} className={`sstep ${state}`} onClick={() => onJump(n)} aria-label={fill(U.goTo, { n })} aria-current={n === stop.chapter ? "step" : undefined}>
+                          <span className="c">{n < stop.chapter ? "✓" : n}</span>
+                          <span className="st">
+                            {s}
+                            {state && (
+                              <span className="trace" key={`${n}-${lang}`}>
+                                {n === 4 && <span className="tsplit"><i style={{ width: `${F.crispsPlant * 100}%` }} /></span>}
+                                {TRACE[lang][i]}
+                              </span>
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
                     <div className="side-foot">{S.fictitious}</div>
                   </aside>
                   <main className="main">

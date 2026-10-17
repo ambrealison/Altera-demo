@@ -5,3 +5,4 @@ dist
 .claude/
 *.tsbuildinfo
 __pycache__/
+media/

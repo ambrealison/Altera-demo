@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Lang } from "./lib/types";
+import type { Lang, Profile } from "./lib/types";
 import { STRINGS } from "./lib/i18n";
 import { BOOKING_URL, DOWNLOADS } from "./config";
 import europe from "./data/europe.json";
@@ -16,10 +16,24 @@ function status(c?: Country): "publishes" | "measures" | "none" {
   return c.retailers.some((r) => r.status === "publishes") ? "publishes" : "measures";
 }
 
-/** The closing page: the movement across Europe, then the call to action. */
-export function Movement({ lang, onRestart }: { lang: Lang; onRestart: () => void }) {
+/** A still version of the map, for the "why now" slide. */
+export function MiniMap({ label }: { label: string }) {
+  const shapes = [...map.countries].sort((a, b) => Number(BY_ID.has(a.id)) - Number(BY_ID.has(b.id)));
+  return (
+    <svg viewBox={`0 0 ${map.w} ${map.h}`} role="img" aria-label={label} className="mini-map">
+      {shapes.map((c) => <path key={c.id} d={c.d} className={`mv-c ${status(BY_ID.get(c.id))}`} />)}
+      {COUNTRIES.map((c) => {
+        const m = map.countries.find((x) => x.id === c.id);
+        return m ? <circle key={c.id} cx={m.cx} cy={m.cy} r={5 + Math.sqrt(c.retailers.length) * 2.2} className={`mini-pin ${status(c)}`} /> : null;
+      })}
+    </svg>
+  );
+}
+
+/** The closing page: the movement across Europe, then the call to action for the visitor's profile. */
+export function Movement({ lang, profile, onRestart }: { lang: Lang; profile: Profile; onRestart: () => void }) {
   const T = STRINGS[lang].end;
-  const S = STRINGS[lang];
+  const C = T.profile[profile];
   const [sel, setSel] = useState<number>(528);
   const country = BY_ID.get(sel) ?? BY_ID.get(528)!;
   const num = (v: number) => v.toLocaleString(lang === "fr" ? "fr-FR" : "en-GB", { maximumFractionDigits: 1 }) + (lang === "fr" ? " %" : "%");
@@ -105,11 +119,11 @@ export function Movement({ lang, onRestart }: { lang: Lang; onRestart: () => voi
 
       <div className="mv-cta rise d4">
         <div>
-          <h2>{T.ctaTitle}</h2>
-          <p>{T.ctaLead}</p>
+          <h2>{C.title}</h2>
+          <p>{C.lead}</p>
         </div>
         <div className="actions" style={{ marginTop: 0 }}>
-          <a className="pill pill-lav" href={BOOKING_URL} target="_blank" rel="noopener">{S.cta} <Arrow /></a>
+          <a className="pill pill-lav" href={BOOKING_URL} target="_blank" rel="noopener">{C.cta} <Arrow /></a>
           <button className="pill pill-ghost light" onClick={onRestart}>{T.restart}</button>
         </div>
       </div>
@@ -122,7 +136,10 @@ export function Movement({ lang, onRestart }: { lang: Lang; onRestart: () => voi
         </ol>
         <div className="end-note">
           <p>{T.disclaimer}</p>
-          <a className="textlink" href={DOWNLOADS.workbook} download>{T.sample}</a>
+          <span className="dl-links">
+            <a className="textlink" href={DOWNLOADS.report[lang]} download>{T.report} · PDF</a>
+            <a className="textlink" href={DOWNLOADS.workbook} download>{T.sample} · XLSX</a>
+          </span>
         </div>
       </div>
     </section>

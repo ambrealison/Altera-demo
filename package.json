@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview --port 4173",
-    "data": "python3 scripts/generate_dataset.py && python3 scripts/build_deliverable.py"
+    "data": "python3 scripts/generate_dataset.py && python3 scripts/build_deliverable.py",
+    "report": "node scripts/build_report.mjs"
   },
   "dependencies": {
     "@fontsource/archivo": "^5.3.0",
@@ -20,6 +21,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "d3-geo": "^3.1.1",
+    "puppeteer-core": "^24.43.1",
     "topojson-client": "^3.1.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",

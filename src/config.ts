@@ -6,4 +6,6 @@ export const BOOKING_URL =
 export const DOWNLOADS = {
   workbook: "downloads/HarbourMarket_Protein_Ratio_DEMO.xlsx",
   file: "downloads/HarbourMarket_products_DEMO.csv",
+  /** Built by scripts/build_report.mjs from report.html. */
+  report: { en: "downloads/HarbourMarket_Insights_Report_DEMO_EN.pdf", fr: "downloads/HarbourMarket_Insights_Report_DEMO_FR.pdf" },
 };

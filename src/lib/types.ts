@@ -1,4 +1,5 @@
 export type Lang = "en" | "fr";
+export type Profile = "retailer" | "ngo";
 
 export type PtClass = "animal_core" | "plant_core" | "plant_non_core" | "composite";
 export type Route = "inherited" | "stratum" | "model";

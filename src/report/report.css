@@ -1,0 +1,69 @@
+/* The sample insights report: A4 pages at 96 dpi (794 × 1123 px), in the demo's palette. */
+.rp-page {
+  position: relative; width: 794px; height: 1123px; overflow: hidden;
+  background: var(--white); color: var(--ink); font-family: var(--sans); text-align: left; line-height: 1.5;
+  padding: 46px 58px 70px; display: flex; flex-direction: column;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.rp-head { display: flex; align-items: center; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--ink); }
+.rp-logo { font-family: var(--display); font-weight: 900; font-style: italic; font-size: 22px; letter-spacing: -0.04em; }
+.rp-logo em { color: var(--green); }
+.rp-kind { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.rp-right { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 11.5px; }
+.rp-tag { font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; background: var(--peach-soft); color: var(--animal-ink); border-radius: 999px; padding: 3px 8px; }
+.rp-eyebrow { margin-top: 26px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--green); }
+.rp-title { font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.04em; line-height: 0.95; font-size: 44px; margin: 12px 0 26px; text-wrap: balance; }
+
+.rp-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rp-kpi { border-radius: 16px; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 6px; }
+.rp-kpi.wwf { background: var(--peach-soft); }
+.rp-kpi.pt { background: var(--lav-soft); }
+.rp-kpi b { font-family: var(--display); font-weight: 900; font-size: 40px; letter-spacing: -0.04em; line-height: 1; color: var(--green); font-variant-numeric: tabular-nums; }
+.rp-m { font-size: 9.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); }
+.rp-k { font-size: 12px; line-height: 1.35; color: var(--ink-2); min-height: 32px; }
+.rp-gauge { position: relative; height: 8px; border-radius: 999px; background: rgba(21, 27, 30, 0.1); margin-top: 4px; }
+.rp-gauge i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: var(--green); }
+.rp-gauge s { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--ink); text-decoration: none; }
+.rp-ref { font-size: 10.5px; color: var(--muted); }
+.rp-units { display: flex; gap: 18px; margin-top: 10px; font-size: 10px; color: var(--muted); }
+
+.rp-h2 { font-family: var(--display); font-weight: 800; font-size: 17px; letter-spacing: -0.015em; margin: 26px 0 4px; }
+.rp-h2.first { margin-top: 18px; }
+.rp-note { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
+.rp-findings { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; }
+.rp-findings li { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 13px 0; border-top: 1px solid var(--line); }
+.rp-findings b { font-family: var(--display); font-weight: 900; font-size: 34px; letter-spacing: -0.04em; color: var(--green); line-height: 1; }
+.rp-findings span { font-size: 14px; line-height: 1.45; color: var(--ink-2); }
+.rp-box { margin-top: auto; background: var(--paper); border-radius: 14px; padding: 14px 16px; font-size: 11.5px; line-height: 1.5; color: var(--text); }
+.rp-box b { color: var(--ink); }
+.rp-box p { margin: 4px 0 0; }
+
+.rp-table { display: flex; flex-direction: column; }
+.rp-tr { display: grid; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line-2); font-size: 12px; }
+.rp-table.groups .rp-tr { grid-template-columns: 34px minmax(0, 1fr) 230px 64px 44px; }
+.rp-table.depts .rp-tr { grid-template-columns: 170px minmax(0, 1fr) 54px 44px; padding: 4px 0; }
+.rp-table.fams .rp-tr { grid-template-columns: 170px minmax(0, 1fr) 54px 44px; }
+.rp-fg { font-family: var(--display); font-weight: 800; }
+.rp-num { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.rp-num.strong { color: var(--ink); font-weight: 600; }
+.rp-bar { display: flex; border-radius: 999px; overflow: hidden; background: var(--line-2); }
+.rp-bar i { display: block; height: 100%; }
+.rp-seg { display: flex; height: 16px; border-radius: 6px; overflow: hidden; gap: 2px; }
+.rp-seg i { display: block; height: 100%; }
+.rp-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 11.5px; color: var(--text); }
+.rp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.rp-legend i { width: 9px; height: 9px; border-radius: 3px; }
+.rp-legend b { color: var(--ink); }
+.rp-legend.small { font-size: 10.5px; }
+.rp-right-note { margin-left: auto; color: var(--muted); }
+
+.rp-levers { display: flex; flex-direction: column; border-top: 1px solid var(--ink); }
+.rp-lh, .rp-lr { display: grid; grid-template-columns: minmax(0, 1fr) 120px 120px; gap: 12px; align-items: center; }
+.rp-lh { font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 8px 0; }
+.rp-lh span:not(:first-child), .rp-lr span:not(:first-child) { text-align: right; }
+.rp-lr { padding: 11px 0; border-top: 1px solid var(--line); font-size: 13px; }
+.rp-lr b { font-family: var(--display); font-weight: 800; font-size: 19px; color: var(--green); font-variant-numeric: tabular-nums; }
+.rp-lr small { display: block; font-size: 9.5px; color: var(--muted); letter-spacing: 0.1em; }
+
+.rp-foot { position: absolute; left: 58px; right: 58px; bottom: 26px; display: flex; justify-content: space-between; gap: 20px; font-size: 9.5px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 10px; }
+.rp-page > * { flex-shrink: 0; }
